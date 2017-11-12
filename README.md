@@ -12,6 +12,7 @@ Trabalho e projeto para as aulas de "Laboratório de Arquitetura e Organização
 
 * Bianca Garcia Martins <biigarciam@gmail.com>
 * Pedro Henrique Lara Campos <root@pedrohlc.com>
+* Rebecca Fernandes Santos <rebecca.fernands@gmail.com>
 
 ## Licença
 
