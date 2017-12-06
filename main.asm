@@ -71,114 +71,66 @@ LEVEL_EASY BYTE Q_REPEAT_X+31,Q_EOG
 LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 
 ; TEXTS
-TXT_TITLE BYTE 88, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 19, " ", 4, "_", 8, " ", 2, "_", 10, " ", 5, "_", 12, " "
-	BYTE 	4, "_", 22, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 18, " ", 1, "/", 1, " ", 2, "_", 1, " ", 1, ")", 2, "_"
-	BYTE 	2 , " ", 2, "_", 1, "/", 1 , " ", 1, "/"
-	BYTE 	4, "_", 5, " ", 1, "/", 1, " ", 3, "_",  1, "/", 2, "_", 2, " ", 7, "_"
-	BYTE 	1, "/", 1, " ", 2, "_", 1, "/", 2, "_"
-	BYTE 	2, " ", 5, "_", 13, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 17, " ", 1, "/", 1, " ", 2, "_", 2, " ", 1, "/", 1, " ", 1, "/"
-	BYTE 	1, " ", 1, "/", 1, " ", 1, "/", 1, " ", 2, "_", 1, "/", 1, " ", 1, "_"
-	BYTE 	1, " ", 1, "\", 4, " ", 1, "\", 2, "_", 1, " ", 1, "\", 1, "/", 1, " "
-	BYTE 	1, "/", 1, " ", 1, "/", 1, " ", 1, "/", 1, " ", 3,"_", 1, "/", 1, " "
-	BYTE 	1, "/", 1, "_", 1, "/", 1, " ", 1, "_", 1, " ", 1, "\", 1, "/", 1, " "
-	BYTE 	3, "_", 1, "/", 13, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 16, " ", 1, "/", 2, " ", 1, "/", 1, "_", 1, "/", 1, " ", 1, "/"
-	BYTE 	1, " ", 1, "/", 1, "_", 1, "/", 1, " ", 1, "/", 1, " ", 1, "/", 1, "_"
-	BYTE 	1, "/", 2, " ", 2, "_", 1, "/", 3, " ", 3, "_", 1, "/", 1, " ", 1, "/"
-	BYTE 	1, " ", 1, "/", 1, "_", 1, "/", 1, " ", 1, "/", 1, " ", 1, "/", 2, " "
-	BYTE 	1, "/", 1, " ", 2, "_", 1, "/", 2, " ", 2, "_", 1, "/", 1, " ", 1, "/"
-	BYTE 	16, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 15, " ", 1, "/", 5, "_", 1, "/", 1, "\", 2, "_", 1, " ", 2, "/"
-	BYTE 	1, "\", 2, "_", 1, "/", 1, "\", 3, "_", 1, "/", 3, " ", 1, "/", 4, "_"
-	BYTE 	1, "/", 1, "\", 2, "_", 1, "_", 1, "/", 1, "_", 1, "/", 2, " ", 1, "/"
-	BYTE 	1, "_", 1, "/", 2, " ", 1, "\", 3, "_", 1, "/", 1, "_", 1, "/", 18, " "
-	BYTE 	1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 21, " ", 1, "/", 4, "_", 1, "/", 59, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 86, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 86, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 30, " ", 1, "P", 1, "R", 1, "E", 2, "S", 1, " ", 1, "F", 1, "1"
-	BYTE 	1, " ", 1, "F", 1, "O", 1, "R", 1, " ", 1, " ", 1, "I", 1, "N", 1, "S"
-	BYTE 	1, "T", 1, "R",  1, "U", 1, "C", 1, "T", 1, "I", 1, "O", 1, "N", 1, "S"
-	BYTE 	1, "!", 29, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 28, " ", 1, "O", 1, "R", 1, " ", 1, "C", 1, "H", 1, "O", 1, "O"
-	BYTE 	1, "S", 1, "E", 1, " ", 1, "A", 1, " ", 1, "D", 1, "I", 1, "F", 1, "F"
-	BYTE 	1, "I", 1, "C", 1, "U", 1, "L", 1, "T", 1, "Y", 1, " ", 1, "T", 1, "O"
-	BYTE 	1, " ", 1, "P", 1, "L", 1, "A", 1, "Y", 1, ":", 27, " ", 1, G_FRAME
-	BYTE 	1, 13, 1, 10
-	BYTE 1, G_FRAME, 39, " ", 1, "1", 1, " ", 1, "-", 1, " ", 1, "E", 1, "A", 1, "S"
-	BYTE 	1, "Y", 39, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 38, " ", 1, "2", 1, " ", 1, "-", 1, " ", 1, "N", 1, "O", 1, "R"
-	BYTE 	1, "M", 1, "A", 1, "L", 38, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 39, " ", 1, "3", 1, " ", 1, "-", 1, " ", 1, "H", 1, "A", 1, "R"
-	BYTE 	1, "D", 39, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 86, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 86, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 2, " ", 1, "C", 1, "r", 1, "e", 1, "a", 1, "t", 1, "e", 1, "d"
-	BYTE 	1, " ", 1, "b", 1, "y", 1, ":", 1, " ", 1, "B", 1, "i", 1, "a", 1, "n"
-	BYTE 	1, "c", 1, "a", 1, " ", 1, "G", 1, "a", 1, "r", 1, "c", 1, "i", 1, "a"
-	BYTE 	1, " ", 1, "M", 1, "a", 1, "r", 1, "t", 1, "i", 1, "n", 1, "s", 25, " "
-	BYTE 	1, "L", 1, "A", 1, "B", 1, " ", 1, "A", 1, "R", 1, "Q", 1, "2", 18, " "
-	BYTE 	1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 14, " ", 1, "P", 1, "e", 1, "d", 1, "r", 1, "o", 1, " ", 1, "H"
-	BYTE 	1, "e", 1, "n", 1, "r", 1, "i", 1, "q", 1, "u", 1, "e", 1, " ", 1, "L"
-	BYTE 	1, "a", 1, "r", 1, "a", 1, " ", 1, "C", 1, "a", 1, "m", 1, "p", 1, "o"
-	BYTE 	1, "s", 15, " ", 1, "P", 1, "r", 1, "o", 1, "f", 1, ".", 1, " ", 1, "L"
-	BYTE 	1, "u", 1, "c", 1, "i", 1, "a", 1, "n", 1, "o", 1, " ", 1, "N", 1, "e"
-	BYTE 	1, "r", 1, "i", 1, "s", 12, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 14, " ", 1, "R", 1, "e", 1, "b", 1, "e", 2, "c", 1, "a", 1, " "
-	BYTE 	1, "F", 1, "e", 1, "r", 1, "n", 1, "a", 1, "n", 1, "d", 1, "e", 1, "s"
-	BYTE 	30, " ", 1, "2", 1, "0", 1, "1", 1, "7", 1, "/", 1, "2", 19, " "
-	BYTE 	1, G_FRAME, 1, 13, 1, 10
-	BYTE 1, G_FRAME, 86, " ", 1, G_FRAME, 1, 13, 1, 10
-	BYTE 88, G_FRAME, 1, 13, 1, 10, 0
+TXT_LOGO \
+	BYTE "    ____        __          _____            ____", 0
+	BYTE "   / __ )__  __/ /____     / ___/__  _______/ __/__  _____", 0
+	BYTE "  / __  / / / / __/ _ \    \__ \/ / / / ___/ /_/ _ \/ ___/", 0
+	BYTE " / /_/ / /_/ / /_/  __/   ___/ / /_/ / /  / __/  __/ /", 0
+	BYTE "/_____/\__, /\__/\___/   /____/\__,_/_/  /_/  \___/_/", 0
+	BYTE "      /____/", 0
+LQ_LOGO = 6
+
+TXT_TITLE_MIDDLE \
+	BYTE "  PRESS F1 FOR INSTRUCTIONS!",0
+	BYTE "OR CHOOSE A DIFFICULTY TO PLAY:",0
+	BYTE "           1 - EASY",0
+	BYTE "          2 - NORMAL",0
+	BYTE "           3 - HARD",0
+LQ_TITLE_MIDDLE = 5
 
 ; BUFFERS
-VSYNC_1 BYTE 25 DUP (90 DUP (?))
-VSYNC_2 BYTE (sizeof VSYNC_1) DUP (?)
-OUTPUT_BUFFER DWORD offset VSYNC_1
 LAST_STEP DWORD ?
+VSYNC BYTE 25 DUP (90 DUP (?))
+BF_DEFAULT_FRAMED BYTE \
+	88 DUP (G_FRAME), 13, 10,
+	23 DUP (G_FRAME, 86 DUP (" "), G_FRAME, 13, 10),
+	88 DUP (G_FRAME), 0
+BF_DEFAULT_EMPTY BYTE 25 DUP (88 DUP (" "), 13, 10), 0
 
 .code
 
-Depack PROC USES esi edi eax ecx, src: PTR BYTE, dst: PTR BYTE ; SPECIAL THANKS: Paulo Matias
-	cld
-	xor ecx, ecx
-	mov esi, src
-	mov edi, dst
+ClipText PROC USES eax ebx ecx edx, src: PTR BYTE, lines: DWORD, sx: DWORD, sy: DWORD
+	mov ebx, src
+	mov ecx, lines
 
-depackL1:
-	lodsb
-	mov ecx, eax
-	test ecx, ecx
-	jz depackL2
-	lodsb
-	rep stosb
-	jmp depackL1
+	mov edx, sy
+	imul edx, edx, 90	
+	add edx, sx
+	;add edx, OUTPUT_BUFFER
+	add edx, offset VSYNC
+	push edx
 
-depackL2:
+ClipTextChar:
+	movzx eax, BYTE PTR [ebx]
+	add ebx, 1
+	test al, al
+	je ClipTextLine
+	mov BYTE PTR [edx], al
+	add edx, 1
+	jmp ClipTextChar
+
+ClipTextLine:
+	pop edx
+	add edx, 90
+	push edx
+	sub ecx, 1
+	cmp ecx, 0
+	je ClipTextFinish
+	jmp ClipTextChar
+
+ClipTextFinish:
 	ret
-Depack ENDP
-
-DrawAndSwapBuffer PROC USES edx
-	call Clrscr
-	mov edx, OUTPUT_BUFFER
-	call WriteString
-	
-	; Swap buffer, mostly uneed with TTYs, but it's cool!
-	test edx, offset VSYNC_2
-	jz toFirstScreen
-
-toSecondScreen:
-	mov OUTPUT_BUFFER, offset VSYNC_2
-	ret 
-
-toFirstScreen:
-	mov OUTPUT_BUFFER, offset VSYNC_1
-	ret
-DrawAndSwapBuffer ENDP 
+ClipText ENDP
 
 WaitStep PROC USES eax ebx
 	mov ebx, MAIN_TIME_STEP
@@ -206,11 +158,13 @@ JumpSleep:
 WaitStep ENDP
 
 TitleScreen PROC
-	INVOKE Depack, offset TXT_TITLE, offset VSYNC_1
-
-	mov edx, OUTPUT_BUFFER
+	INVOKE Str_copy,
+		offset BF_DEFAULT_FRAMED,
+		offset VSYNC
+	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
+	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
+	mov edx, offset VSYNC
 	call WriteString
-
 	INVOKE WaitStep
 
 	ret
