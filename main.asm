@@ -212,8 +212,6 @@ JumpSleep:
 WaitStep ENDP
 
 TitleScreen PROC USES eax edx
-	mov eax, cyan+(black*16)
-	call SetTextColor
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
@@ -224,10 +222,22 @@ TitleScreen PROC USES eax edx
 	
 	mov edx, offset VSYNC
 	call WriteString
-	INVOKE WaitStep
 
 	ret
 TitleScreen ENDP
+
+HelpScreen PROC USES eax edx
+	INVOKE Str_copy,
+		offset BF_DEFAULT_FRAMED,
+		offset VSYNC
+	
+	INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 4, 2
+	
+	mov edx, offset VSYNC
+	call WriteString
+
+	ret
+HelpScreen ENDP
 
 main PROC
 	; Starts frame-sync timer
@@ -238,7 +248,6 @@ main PROC
 	INVOKE TitleScreen
 
 	; Bye
-	call ReadChar
 	exit
 main ENDP
 
