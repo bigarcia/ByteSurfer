@@ -88,6 +88,61 @@ TXT_TITLE_MIDDLE \
 	BYTE "           3 - HARD",0
 LQ_TITLE_MIDDLE = 5
 
+TXT_AUTHORS \
+	BYTE "Created by: Bianca Garcia Martins                         LAB ARQ2", 0
+	BYTE "            Pedro Henrique Lara Campos               Prof. Luciano Neris", 0
+	BYTE "            Rebecca Fernandes                              2017/2", 0
+LQ_AUTHORS = 3
+
+TXT_INSTRUCTIONS \
+	BYTE "INSTRUCTIONS:", 0
+	BYTE 0
+	BYTE "  Press the UP and DOWN keys to move your spaceship across the roadway.", 0
+	BYTE 0
+	BYTE "  Earn points collecting bricks forming clusters of the same colors.", 0
+	BYTE 0
+	BYTE "  The bigger is the cluster and the hotter its color then more points will be", 0
+	BYTE "  received.", 0
+	BYTE 0
+	BYTE "  If you get tired of playing, press ESC to return to title screen.", 0
+	BYTE 0
+	BYTE "  The level ends when the music stops!", 0
+	BYTE 0
+	BYTE "  In the title screen you need to choose a difficulty and press the number rela- ", 0
+	BYTE "  ted to your choise.", 0
+	BYTE 0
+	BYTE 0
+	BYTE "                                                Press RETURN to return...", 0
+LQ_INSTRUCTIONS = 18
+
+TXT_POINTS \
+	BYTE 201,205,187,218,196,191,218,191,218,218,196,191,194,196,191,218,196,191,218,194,191,194," ",194,194," "," ",218,196,191,218,194,191,194,218,196,191,218,191,218,218,196,191, 0
+	BYTE 186," "," ",179," ",179,179,179,179,179," ",194,195,194,217,195,196,180," ",179," ",179," ",179,179," "," ",195,196,180," ",179," ",179,179," ",179,179,179,179,192,196,191, 0
+	BYTE 200,205,188,192,196,217,217,192,217,192,196,217,193,192,196,193," ",193," ",193," ",192,196,217,193,196,217,193," ",193," ",193," ",193,192,196,217,217,192,217,192,196,217, 0
+LQ_POINTS = 3
+
+TXT_MEDAL \
+	BYTE "HERE'S A MEDAL FOR YOU:",0
+LQ_MEDAL = 1
+
+TXT_REWARD_GOLD \
+	BYTE 201, 205, 187, 201, 205, 187, 203, "  ", 201, 203, 187, 0
+	BYTE 186, " ", 203, 186, " ", 186, 186, "   ", 186, 186, 0
+	BYTE 200, 205, 188, 200, 205, 188, 202, 205, 188, 205, 202, 188, 0
+LQ_REWARD_GOLD = 3
+                 
+TXT_PTS \
+	BYTE "YOU GOT ", 0
+	BYTE " PTS.", 0
+LQ_PTS = 2
+             
+TXT_FINISH \
+	BYTE "WANNA TRY AGAIN?", 0
+	BYTE " Press ESC to quit.", 0
+	BYTE " Press SPACE to replay.", 0
+	BYTE " Press RETURN to go back to title screen.", 0
+LQ_FINISH = 4
+
 ; BUFFERS
 LAST_STEP DWORD ?
 VSYNC BYTE 25 DUP (90 DUP (?))
@@ -161,7 +216,7 @@ TitleScreen PROC
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
-	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
+	INVOKE ClipText, offset TXT_POINTS, LQ_POINTS, 16, 1
 	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
 	mov edx, offset VSYNC
 	call WriteString
@@ -179,6 +234,7 @@ main PROC
 	INVOKE TitleScreen
 
 	; Bye
+	call ReadChar
 	exit
 main ENDP
 
