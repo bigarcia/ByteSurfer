@@ -40,14 +40,8 @@ L_EMPTY = 0
 L_EOG = 1
 L_COLOR = 2
 
-; Enum: Scenes
-MAIN_START = 255
-MAIN_TITLE = 254
-MAIN_INSTRUCTIONS = 253
-MAIN_PONCTUATION = 254
-
 ; GAME STATES
-PLAYER_POS BYTE MAIN_START ; WHICH LANE (0..LEN_Q_LANES) OR WHICH SCENE (MAIN_START..MAIN_PONCTUATION)
+PLAYER_POS BYTE ? ; WHICH LANE (0..LEN_Q_LANES)
 MAIN_Q DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE
 MAIN_Q_INDEX BYTE 0	; CURRENT LEVEL QUEUE POSITION/INDEX
 MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
@@ -223,6 +217,38 @@ TitleScreen PROC USES eax edx
 	mov edx, offset VSYNC
 	call WriteString
 
+TitleWaitAction:
+
+	call ReadKey
+	
+	cmp dx, VK_ESCAPE
+	je TitleFinish
+
+	cmp dx, VK_F1
+	je TitleGoHelp
+
+	cmp dx, 31h
+	je TitleGoEasy
+
+	cmp dx, 32h
+	je TitleGoNormal
+
+	cmp dx, 31h
+	je TitleGoHard
+
+	INVOKE WaitStep
+	jmp TitleWaitAction
+
+TitleGoEasy:
+
+TitleGoNormal:
+
+TitleGoHard:
+
+TitleGoHelp:
+	INVOKE TitleScreen
+
+TitleFinish:
 	ret
 TitleScreen ENDP
 
