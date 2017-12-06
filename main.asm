@@ -148,9 +148,9 @@ LAST_STEP DWORD ?
 VSYNC BYTE 25 DUP (90 DUP (?))
 BF_DEFAULT_FRAMED BYTE \
 	88 DUP (G_FRAME), 13, 10,
-	23 DUP (G_FRAME, 86 DUP (" "), G_FRAME, 13, 10),
+	20 DUP (G_FRAME, 86 DUP (" "), G_FRAME, 13, 10),
 	88 DUP (G_FRAME), 0
-BF_DEFAULT_EMPTY BYTE 25 DUP (88 DUP (" "), 13, 10), 0
+BF_DEFAULT_EMPTY BYTE 22 DUP (88 DUP (" "), 13, 10), 0
 
 .code
 
@@ -161,7 +161,6 @@ ClipText PROC USES eax ebx ecx edx, src: PTR BYTE, lines: DWORD, sx: DWORD, sy: 
 	mov edx, sy
 	imul edx, edx, 90	
 	add edx, sx
-	;add edx, OUTPUT_BUFFER
 	add edx, offset VSYNC
 	push edx
 
@@ -216,8 +215,9 @@ TitleScreen PROC
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
-	INVOKE ClipText, offset TXT_POINTS, LQ_POINTS, 16, 1
+	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
 	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
+	INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 4, 16
 	mov edx, offset VSYNC
 	call WriteString
 	INVOKE WaitStep
