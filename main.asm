@@ -211,13 +211,25 @@ JumpSleep:
 	ret
 WaitStep ENDP
 
-TitleScreen PROC
+TitleScreen PROC USES eax edx
+	mov eax, blue+(black*16)
+	call SetTextColor
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
+	
+	mov eax, magenta+(black*16)
+	call SetTextColor
 	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
+	
+	mov eax, yellow+(black*16)
+	call SetTextColor
 	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
+	
+	mov eax, red+(black*16)
+	call SetTextColor
 	INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 4, 16
+	
 	mov edx, offset VSYNC
 	call WriteString
 	INVOKE WaitStep
