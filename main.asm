@@ -64,6 +64,13 @@ G_FRAME = 254
 LEVEL_EASY BYTE Q_REPEAT_X+31,Q_EOG
 LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 
+; METAS
+META_EASY_TITLE BYTE "Musica Bahiana", 0
+META_EASY_ARTIST BYTE "Pedro", 0
+META_EASY_YEAR DWORD 1995
+;META_NORMAL
+;META_HARD
+
 ; TEXTS
 TXT_LOGO \
 	BYTE "    ____        __          _____            ____", 0
@@ -205,7 +212,60 @@ JumpSleep:
 	ret
 WaitStep ENDP
 
+HelpScreen PROC USES eax edx
+	INVOKE Str_copy,
+		offset BF_DEFAULT_FRAMED,
+		offset VSYNC
+	
+	INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 4, 2
+	
+	call Clrscr
+	mov edx, offset VSYNC
+	call WriteString
+	call ReadChar
+	
+	ret
+HelpScreen ENDP
+
+sGotoxy PROC USES edx row: BYTE, col: BYTE
+	mov dl, col
+	mov dh, row
+	call Gotoxy
+	ret
+sGotoxy ENDP
+
+Game PROC  USES eax ebx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE, year: DWORD
+	call Clrscr
+	
+	INVOKE sGotoxy, 1, 4
+	mov eax, red*16 + white
+	call SetTextColor
+	mov edx, _title
+	call WriteString
+
+	INVOKE sGotoxy, 2, 4
+	mov eax, green*16 + white
+	call SetTextColor
+	mov edx, artist
+	call WriteString
+
+	INVOKE sGotoxy, 3, 4
+	mov eax, blue*16 + white
+	call SetTextColor
+	mov eax, year
+	call WriteDec
+	
+	mov eax, black*16 + white
+	call SetTextColor
+	
+	mov ebx, level
+	call ReadChar
+	
+	ret
+Game ENDP
+
 TitleScreen PROC USES eax edx
+TitleStart: 
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
@@ -214,6 +274,7 @@ TitleScreen PROC USES eax edx
 	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
 	INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 4, 16
 	
+	call Clrscr
 	mov edx, offset VSYNC
 	call WriteString
 
@@ -240,30 +301,19 @@ TitleWaitAction:
 	jmp TitleWaitAction
 
 TitleGoEasy:
-
+	INVOKE Game, offset LEVEL_EASY, offset META_EASY_TITLE, offset META_EASY_ARTIST, META_EASY_YEAR
+	;jmp PoncutationScreen
 TitleGoNormal:
 
 TitleGoHard:
 
 TitleGoHelp:
-	INVOKE TitleScreen
+	INVOKE HelpScreen
+	jmp TitleStart
 
 TitleFinish:
 	ret
 TitleScreen ENDP
-
-HelpScreen PROC USES eax edx
-	INVOKE Str_copy,
-		offset BF_DEFAULT_FRAMED,
-		offset VSYNC
-	
-	INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 4, 2
-	
-	mov edx, offset VSYNC
-	call WriteString
-
-	ret
-HelpScreen ENDP
 
 main PROC
 	; Starts frame-sync timer

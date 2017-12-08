@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.12.25830.2	    12/06/17 02:26:45
+Microsoft (R) Macro Assembler Version 14.12.25830.2	    12/08/17 17:20:22
 main.asm						     Page 1 - 1
 
 
@@ -61,14 +61,8 @@ main.asm						     Page 1 - 1
  = 00000001			L_EOG = 1
  = 00000002			L_COLOR = 2
 
-				; Enum: Scenes
- = 000000FF			MAIN_START = 255
- = 000000FE			MAIN_TITLE = 254
- = 000000FD			MAIN_INSTRUCTIONS = 253
- = 000000FE			MAIN_PONCTUATION = 254
-
 				; GAME STATES
- 00000000 FF			PLAYER_POS BYTE MAIN_START ; WHICH LANE (0..LEN_Q_LANES) OR WHICH SCENE (MAIN_START..MAIN_PONCTUATION)
+ 00000000 00			PLAYER_POS BYTE ? ; WHICH LANE (0..LEN_Q_LANES)
  00000001 0000008B R		MAIN_Q DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE
  00000005 00			MAIN_Q_INDEX BYTE 0	; CURRENT LEVEL QUEUE POSITION/INDEX
  00000006 00			MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
@@ -103,8 +97,18 @@ main.asm						     Page 1 - 1
  0000008B 35 FF			LEVEL_EASY BYTE Q_REPEAT_X+31,Q_EOG
  0000008D 35 FF			LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 
+				; METAS
+ 0000008F 4D 75 73 69 63	META_EASY_TITLE BYTE "Musica Bahiana", 0
+	   61 20 42 61 68
+	   69 61 6E 61 00
+ 0000009E 50 65 64 72 6F	META_EASY_ARTIST BYTE "Pedro", 0
+	   00
+ 000000A4 000007CB		META_EASY_YEAR DWORD 1995
+				;META_NORMAL
+				;META_HARD
+
 				; TEXTS
- 0000008F 20 20 20 20 5F	TXT_LOGO \
+ 000000A8 20 20 20 20 5F	TXT_LOGO \
 	   5F 5F 5F 20 20
 	   20 20 20 20 20
 	   20 5F 5F 20 20
@@ -115,7 +119,7 @@ main.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   5F 5F 5F 5F 00
 					BYTE "    ____        __          _____            ____", 0
- 000000C1  20 20 20 2F 20		BYTE "   / __ )__  __/ /____     / ___/__  _______/ __/__  _____", 0
+ 000000DA  20 20 20 2F 20		BYTE "   / __ )__  __/ /____     / ___/__  _______/ __/__  _____", 0
 	   5F 5F 20 29 5F
 	   5F 20 20 5F 5F
 	   2F 20 2F 5F 5F
@@ -127,7 +131,7 @@ main.asm						     Page 1 - 1
 	   20 5F 5F 2F 5F
 	   5F 20 20 5F 5F
 	   5F 5F 5F 00
- 000000FC  20 20 2F 20 5F		BYTE "  / __  / / / / __/ _ \    \__ \/ / / / ___/ /_/ _ \/ ___/", 0
+ 00000115  20 20 2F 20 5F		BYTE "  / __  / / / / __/ _ \    \__ \/ / / / ___/ /_/ _ \/ ___/", 0
 	   5F 20 20 2F 20
 	   2F 20 2F 20 2F
 	   20 5F 5F 2F 20
@@ -139,7 +143,7 @@ main.asm						     Page 1 - 1
 	   2F 5F 2F 20 5F
 	   20 5C 2F 20 5F
 	   5F 5F 2F 00
- 00000137  20 2F 20 2F 5F		BYTE " / /_/ / /_/ / /_/  __/   ___/ / /_/ / /  / __/  __/ /", 0
+ 00000150  20 2F 20 2F 5F		BYTE " / /_/ / /_/ / /_/  __/   ___/ / /_/ / /  / __/  __/ /", 0
 	   2F 20 2F 20 2F
 	   5F 2F 20 2F 20
 	   2F 5F 2F 20 20
@@ -150,7 +154,7 @@ main.asm						     Page 1 - 1
 	   20 20 2F 20 5F
 	   5F 2F 20 20 5F
 	   5F 2F 20 2F 00
- 0000016E  2F 5F 5F 5F 5F		BYTE "/_____/\__, /\__/\___/   /____/\__,_/_/  /_/  \___/_/", 0
+ 00000187  2F 5F 5F 5F 5F		BYTE "/_____/\__, /\__/\___/   /____/\__,_/_/  /_/  \___/_/", 0
 	   5F 2F 5C 5F 5F
 	   2C 20 2F 5C 5F
 	   5F 2F 5C 5F 5F
@@ -161,41 +165,41 @@ main.asm						     Page 1 - 1
 	   20 2F 5F 2F 20
 	   20 5C 5F 5F 5F
 	   2F 5F 2F 00
- 000001A4  20 20 20 20 20		BYTE "      /____/", 0
+ 000001BD  20 20 20 20 20		BYTE "      /____/", 0
 	   20 2F 5F 5F 5F
 	   5F 2F 00
  = 00000006			LQ_LOGO = 6
 
- 000001B1 20 20 50 52 45	TXT_TITLE_MIDDLE \
+ 000001CA 20 20 50 52 45	TXT_TITLE_MIDDLE \
 	   53 53 20 46 31
 	   20 46 4F 52 20
 	   49 4E 53 54 52
 	   55 43 54 49 4F
 	   4E 53 21 00
 					BYTE "  PRESS F1 FOR INSTRUCTIONS!",0
- 000001CE  4F 52 20 43 48		BYTE "OR CHOOSE A DIFFICULTY TO PLAY:",0
+ 000001E7  4F 52 20 43 48		BYTE "OR CHOOSE A DIFFICULTY TO PLAY:",0
 	   4F 4F 53 45 20
 	   41 20 44 49 46
 	   46 49 43 55 4C
 	   54 59 20 54 4F
 	   20 50 4C 41 59
 	   3A 00
- 000001EE  20 20 20 20 20		BYTE "           1 - EASY",0
+ 00000207  20 20 20 20 20		BYTE "           1 - EASY",0
 	   20 20 20 20 20
 	   20 31 20 2D 20
 	   45 41 53 59 00
- 00000202  20 20 20 20 20		BYTE "          2 - NORMAL",0
+ 0000021B  20 20 20 20 20		BYTE "          2 - NORMAL",0
 	   20 20 20 20 20
 	   32 20 2D 20 4E
 	   4F 52 4D 41 4C
 	   00
- 00000217  20 20 20 20 20		BYTE "           3 - HARD",0
+ 00000230  20 20 20 20 20		BYTE "           3 - HARD",0
 	   20 20 20 20 20
 	   20 33 20 2D 20
 	   48 41 52 44 00
  = 00000005			LQ_TITLE_MIDDLE = 5
 
- 0000022B 43 72 65 61 74	TXT_AUTHORS \
+ 00000244 43 72 65 61 74	TXT_AUTHORS \
 	   65 64 20 62 79
 	   3A 20 42 69 61
 	   6E 63 61 20 47
@@ -210,7 +214,7 @@ main.asm						     Page 1 - 1
 	   42 20 41 52 51
 	   32 00
 					BYTE "Created by: Bianca Garcia Martins                         LAB ARQ2", 0
- 0000026E  20 20 20 20 20		BYTE "            Pedro Henrique Lara Campos               Prof. Luciano Neris", 0
+ 00000287  20 20 20 20 20		BYTE "            Pedro Henrique Lara Campos               Prof. Luciano Neris", 0
 	   20 20 20 20 20
 	   20 20 50 65 64
 	   72 6F 20 48 65
@@ -225,7 +229,7 @@ main.asm						     Page 1 - 1
 	   75 63 69 61 6E
 	   6F 20 4E 65 72
 	   69 73 00
- 000002B7  20 20 20 20 20		BYTE "            Rebecca Fernandes                              2017/2", 0
+ 000002D0  20 20 20 20 20		BYTE "            Rebecca Fernandes                              2017/2", 0
 	   20 20 20 20 20
 	   20 20 52 65 62
 	   65 63 63 61 20
@@ -240,13 +244,13 @@ main.asm						     Page 1 - 1
 	   30 31 37 2F 32
 	   00
  = 00000003			LQ_AUTHORS = 3
-				
- 000002F9 49 4E 53 54 52	TXT_INSTRUCTIONS \
+
+ 00000312 49 4E 53 54 52	TXT_INSTRUCTIONS \
 	   55 43 54 49 4F
 	   4E 53 3A 00
-					BYTE "INSTRUCTIONS:", 0                                                                        
- 00000307  00				BYTE 0
- 00000308  20 20 50 72 65		BYTE "  Press the UP and DOWN keys to move your spaceship across the roadway.", 0            
+					BYTE "INSTRUCTIONS:", 0
+ 00000320  00				BYTE 0
+ 00000321  20 20 50 72 65		BYTE "  Press the UP and DOWN keys to move your spaceship across the roadway.", 0
 	   73 73 20 74 68
 	   65 20 55 50 20
 	   61 6E 64 20 44
@@ -261,8 +265,8 @@ main.asm						     Page 1 - 1
 	   68 65 20 72 6F
 	   61 64 77 61 79
 	   2E 00
- 00000350  00				BYTE 0                                                                                     
- 00000351  20 20 45 61 72		BYTE "  Earn points collecting bricks forming clusters of the same colors.", 0                
+ 00000369  00				BYTE 0
+ 0000036A  20 20 45 61 72		BYTE "  Earn points collecting bricks forming clusters of the same colors.", 0
 	   6E 20 70 6F 69
 	   6E 74 73 20 63
 	   6F 6C 6C 65 63
@@ -276,8 +280,8 @@ main.asm						     Page 1 - 1
 	   20 73 61 6D 65
 	   20 63 6F 6C 6F
 	   72 73 2E 00
- 00000396  00				BYTE 0                                                                                    
- 00000397  20 20 54 68 65		BYTE "  The bigger is the cluster and the hotter its color then more points will be", 0       
+ 000003AF  00				BYTE 0
+ 000003B0  20 20 54 68 65		BYTE "  The bigger is the cluster and the hotter its color then more points will be", 0
 	   20 62 69 67 67
 	   65 72 20 69 73
 	   20 74 68 65 20
@@ -293,11 +297,11 @@ main.asm						     Page 1 - 1
 	   69 6E 74 73 20
 	   77 69 6C 6C 20
 	   62 65 00
- 000003E5  20 20 72 65 63		BYTE "  received.", 0                                                                         
+ 000003FE  20 20 72 65 63		BYTE "  received.", 0
 	   65 69 76 65 64
 	   2E 00
- 000003F1  00				BYTE 0                                                                                     
- 000003F2  20 20 49 66 20		BYTE "  If you get tired of playing, press ESC to return to title screen.", 0                 
+ 0000040A  00				BYTE 0
+ 0000040B  20 20 49 66 20		BYTE "  If you get tired of playing, press ESC to return to title screen.", 0
 	   79 6F 75 20 67
 	   65 74 20 74 69
 	   72 65 64 20 6F
@@ -311,8 +315,8 @@ main.asm						     Page 1 - 1
 	   69 74 6C 65 20
 	   73 63 72 65 65
 	   6E 2E 00
- 00000436  00				BYTE 0                                                                                    
- 00000437  20 20 54 68 65		BYTE "  The level ends when the music stops!", 0                                              
+ 0000044F  00				BYTE 0
+ 00000450  20 20 54 68 65		BYTE "  The level ends when the music stops!", 0
 	   20 6C 65 76 65
 	   6C 20 65 6E 64
 	   73 20 77 68 65
@@ -320,8 +324,8 @@ main.asm						     Page 1 - 1
 	   20 6D 75 73 69
 	   63 20 73 74 6F
 	   70 73 21 00
- 0000045E  00				BYTE 0                                                                                    
- 0000045F  20 20 49 6E 20		BYTE "  In the title screen you need to choose a difficulty and press the number rela- ", 0   
+ 00000477  00				BYTE 0
+ 00000478  20 20 49 6E 20		BYTE "  In the title screen you need to choose a difficulty and press the number rela- ", 0
 	   74 68 65 20 74
 	   69 74 6C 65 20
 	   73 63 72 65 65
@@ -338,14 +342,14 @@ main.asm						     Page 1 - 1
 	   6D 62 65 72 20
 	   72 65 6C 61 2D
 	   20 00
- 000004B1  20 20 74 65 64		BYTE "  ted to your choise.", 0                                                               
+ 000004CA  20 20 74 65 64		BYTE "  ted to your choise.", 0
 	   20 74 6F 20 79
 	   6F 75 72 20 63
 	   68 6F 69 73 65
 	   2E 00
- 000004C7  00				BYTE 0                                                                                     
- 000004C8  00				BYTE 0                                                                                    
- 000004C9  20 20 20 20 20		BYTE "                                                Press RETURN to return...", 0           
+ 000004E0  00				BYTE 0
+ 000004E1  00				BYTE 0
+ 000004E2  20 20 20 20 20		BYTE "                                                Press RETURN to return...", 0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -360,9 +364,9 @@ main.asm						     Page 1 - 1
 	   20 74 6F 20 72
 	   65 74 75 72 6E
 	   2E 2E 2E 00
- = 00000012			LQ_INSTRUCTIONS = 18        
+ = 00000012			LQ_INSTRUCTIONS = 18
 
- 00000513 C9 CD BB DA C4	TXT_POINTS \                                                                                                       
+ 0000052C C9 CD BB DA C4	TXT_POINTS \
 	   BF DA BF DA DA
 	   C4 BF C2 C4 BF
 	   DA C4 BF DA C2
@@ -371,8 +375,8 @@ main.asm						     Page 1 - 1
 	   DA C2 BF C2 DA
 	   C4 BF DA BF DA
 	   DA C4 BF 00
-				BYTE 201,205,187,218,196,191,218,191,218,218,196,191,194,196,191,218,196,191,218,194,191,194," ",194,194," "," ",218,196,191,218,194,191,194,218,196,191,218,191,218,218,196,191, 0                     
- 0000053F  BA 20 20 B3 20	BYTE 186," "," ",179," ",179,179,179,179,179," ",194,195,194,217,195,196,180," ",179," ",179," ",179,179," "," ",195,196,180," ",179," ",179,179," ",179,179,179,179,192,196,191, 0                    
+					BYTE 201,205,187,218,196,191,218,191,218,218,196,191,194,196,191,218,196,191,218,194,191,194," ",194,194," "," ",218,196,191,218,194,191,194,218,196,191,218,191,218,218,196,191, 0
+ 00000558  BA 20 20 B3 20		BYTE 186," "," ",179," ",179,179,179,179,179," ",194,195,194,217,195,196,180," ",179," ",179," ",179,179," "," ",195,196,180," ",179," ",179,179," ",179,179,179,179,192,196,191, 0
 	   B3 B3 B3 B3 B3
 	   20 C2 C3 C2 D9
 	   C3 C4 B4 20 B3
@@ -381,7 +385,7 @@ main.asm						     Page 1 - 1
 	   20 B3 20 B3 B3
 	   20 B3 B3 B3 B3
 	   C0 C4 BF 00
- 0000056B  C8 CD BC C0 C4	BYTE 200,205,188,192,196,217,217,192,217,192,196,217,193,192,196,193," ",193," ",193," ",192,196,217,193,196,217,193," ",193," ",193," ",193,192,196,217,217,192,217,192,196,217, 0   
+ 00000584  C8 CD BC C0 C4		BYTE 200,205,188,192,196,217,217,192,217,192,196,217,193,192,196,193," ",193," ",193," ",192,196,217,193,196,217,193," ",193," ",193," ",193,192,196,217,217,192,217,192,196,217, 0
 	   D9 D9 C0 D9 C0
 	   C4 D9 C1 C0 C4
 	   C1 20 C1 20 C1
@@ -391,49 +395,49 @@ main.asm						     Page 1 - 1
 	   C4 D9 D9 C0 D9
 	   C0 C4 D9 00
  = 00000003			LQ_POINTS = 3
-				
- 00000597 48 45 52 45 27	TXT_MEDAL \                                                                                       
+
+ 000005B0 48 45 52 45 27	TXT_MEDAL \
 	   53 20 41 20 4D
 	   45 44 41 4C 20
 	   46 4F 52 20 59
 	   4F 55 3A 00
 					BYTE "HERE'S A MEDAL FOR YOU:",0
  = 00000001			LQ_MEDAL = 1
-				
- 000005AF C9 CD BB C9 CD	TXT_REWARD_GOLD \
+
+ 000005C8 C9 CD BB C9 CD	TXT_REWARD_GOLD \
 	   BB CB 20 20 C9
 	   CB BB 00
-					BYTE 201, 205, 187, 201, 205, 187, 203, "  ", 201, 203, 187, 0                                     
- 000005BC  BA 20 CB BA 20		BYTE 186, " ", 203, 186, " ", 186, 186, "   ", 186, 186, 0                                     
+					BYTE 201, 205, 187, 201, 205, 187, 203, "  ", 201, 203, 187, 0
+ 000005D5  BA 20 CB BA 20		BYTE 186, " ", 203, 186, " ", 186, 186, "   ", 186, 186, 0
 	   BA BA 20 20 20
 	   BA BA 00
- 000005C9  C8 CD BC C8 CD		BYTE 200, 205, 188, 200, 205, 188, 202, 205, 188, 205, 202, 188, 0                                     
+ 000005E2  C8 CD BC C8 CD		BYTE 200, 205, 188, 200, 205, 188, 202, 205, 188, 205, 202, 188, 0
 	   BC CA CD BC CD
 	   CA BC 00
- = 00000003			LQ_REWARD_GOLD = 3                                                                                      
+ = 00000003			LQ_REWARD_GOLD = 3
 				                 
- 000005D6 59 4F 55 20 47	TXT_PTS \				 
+ 000005EF 59 4F 55 20 47	TXT_PTS \
 	   4F 54 20 00
-					BYTE "YOU GOT ", 0  
- 000005DF  20 50 54 53 2E		BYTE " PTS.", 0                                  
+					BYTE "YOU GOT ", 0
+ 000005F8  20 50 54 53 2E		BYTE " PTS.", 0
 	   00
- = 00000002			LQ_PTS = 2                                                                                      
+ = 00000002			LQ_PTS = 2
 				             
- 000005E5 57 41 4E 4E 41	TXT_FINISH \			 
+ 000005FE 57 41 4E 4E 41	TXT_FINISH \
 	   20 54 52 59 20
 	   41 47 41 49 4E
 	   3F 00
-					BYTE "WANNA TRY AGAIN?", 0                                                                    
- 000005F6  20 50 72 65 73		BYTE " Press ESC to quit.", 0                                                                
+					BYTE "WANNA TRY AGAIN?", 0
+ 0000060F  20 50 72 65 73		BYTE " Press ESC to quit.", 0
 	   73 20 45 53 43
 	   20 74 6F 20 71
 	   75 69 74 2E 00
- 0000060A  20 50 72 65 73		BYTE " Press SPACE to replay.", 0                                                            
+ 00000623  20 50 72 65 73		BYTE " Press SPACE to replay.", 0
 	   73 20 53 50 41
 	   43 45 20 74 6F
 	   20 72 65 70 6C
 	   61 79 2E 00
- 00000622  20 50 72 65 73		BYTE " Press RETURN to go back to title screen.", 0                                          
+ 0000063B  20 50 72 65 73		BYTE " Press RETURN to go back to title screen.", 0
 	   73 20 52 45 54
 	   55 52 4E 20 74
 	   6F 20 67 6F 20
@@ -442,19 +446,19 @@ main.asm						     Page 1 - 1
 	   74 6C 65 20 73
 	   63 72 65 65 6E
 	   2E 00
- = 00000004			LQ_FINISH = 4                                                                                      
+ = 00000004			LQ_FINISH = 4
 
 				; BUFFERS
- 0000064C 00000000		LAST_STEP DWORD ?
- 00000650  00000019 [		VSYNC BYTE 25 DUP (90 DUP (?))
+ 00000665 00000000		LAST_STEP DWORD ?
+ 00000669  00000019 [		VSYNC BYTE 25 DUP (90 DUP (?))
 	    0000005A [
 	     00
 	    ]
 	   ]
- 00000F1A  00000058 [		BF_DEFAULT_FRAMED BYTE \
+ 00000F33  00000058 [		BF_DEFAULT_FRAMED BYTE \
 	    FE
 	   ] 0D 0A
-	   00000017 [
+	   00000014 [
 	    FE
 	    00000056 [
 	     20
@@ -464,9 +468,9 @@ main.asm						     Page 1 - 1
 	    FE
 	   ] 00
 					88 DUP (G_FRAME), 13, 10,
-					23 DUP (G_FRAME, 86 DUP (" "), G_FRAME, 13, 10),
+					20 DUP (G_FRAME, 86 DUP (" "), G_FRAME, 13, 10),
 					88 DUP (G_FRAME), 0
- 000017E3  00000019 [		BF_DEFAULT_EMPTY BYTE 25 DUP (88 DUP (" "), 13, 10), 0
+ 000016EE  00000016 [		BF_DEFAULT_EMPTY BYTE 22 DUP (88 DUP (" "), 13, 10), 0
 	    00000058 [
 	     20
 	    ] 0D 0A
@@ -487,8 +491,7 @@ main.asm						     Page 1 - 1
  0000000D  8B 55 14			mov edx, sy
  00000010  6B D2 5A			imul edx, edx, 90	
  00000013  03 55 10			add edx, sx
-					;add edx, OUTPUT_BUFFER
- 00000016  81 C2 00000650 R		add edx, offset VSYNC
+ 00000016  81 C2 00000669 R		add edx, offset VSYNC
  0000001C  52				push edx
 
  0000001D			ClipTextChar:
@@ -526,7 +529,7 @@ main.asm						     Page 1 - 1
 
 					; Get elapsed time
  0000004C  E8 00000000 E		call GetMseconds
- 00000051  2B 05 0000064C R		sub eax, LAST_STEP
+ 00000051  2B 05 00000665 R		sub eax, LAST_STEP
 
 					; Subtract elapsed time from default step
  00000057  2B D8			sub ebx, eax
@@ -543,7 +546,7 @@ main.asm						     Page 1 - 1
  00000065			JumpSleep:
 					; Save current time to calculate elapsed later on
  00000065  E8 00000000 E		call GetMseconds
- 0000006A  A3 0000064C R		mov LAST_STEP, eax
+ 0000006A  A3 00000665 R		mov LAST_STEP, eax
 
 					ret
  0000006F  5B		   *	    pop    ebx
@@ -551,51 +554,194 @@ main.asm						     Page 1 - 1
  00000071  C3		   *	    ret    00000h
  00000072			WaitStep ENDP
 
- 00000072			TitleScreen PROC
+ 00000072			HelpScreen PROC USES eax edx
+ 00000072  50		   *	    push   eax
+ 00000073  52		   *	    push   edx
 					INVOKE Str_copy,
 						offset BF_DEFAULT_FRAMED,
 						offset VSYNC
- 00000072  68 00000650 R   *	    push   dword  ptr OFFSET FLAT: VSYNC
- 00000077  68 00000F1A R   *	    push   dword  ptr OFFSET FLAT: BF_DEFAULT_FRAMED
- 0000007C  E8 00000000 E   *	    call   Str_copy
-					INVOKE ClipText, offset TXT_POINTS, LQ_POINTS, 16, 1
- 00000081  6A 01	   *	    push   +000000001h
- 00000083  6A 10	   *	    push   +000000010h
- 00000085  6A 03	   *	    push   +000000003h
- 00000087  68 00000513 R   *	    push   dword  ptr OFFSET FLAT: TXT_POINTS
- 0000008C  E8 FFFFFF6F	   *	    call   ClipText
+ 00000074  68 00000669 R   *	    push   dword  ptr OFFSET FLAT: VSYNC
+ 00000079  68 00000F33 R   *	    push   dword  ptr OFFSET FLAT: BF_DEFAULT_FRAMED
+ 0000007E  E8 00000000 E   *	    call   Str_copy
+					
+					INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 4, 2
+ 00000083  6A 02	   *	    push   +000000002h
+ 00000085  6A 04	   *	    push   +000000004h
+ 00000087  6A 12	   *	    push   +000000012h
+ 00000089  68 00000312 R   *	    push   dword  ptr OFFSET FLAT: TXT_INSTRUCTIONS
+ 0000008E  E8 FFFFFF6D	   *	    call   ClipText
+					
+ 00000093  E8 00000000 E		call Clrscr
+ 00000098  BA 00000669 R		mov edx, offset VSYNC
+ 0000009D  E8 00000000 E		call WriteString
+ 000000A2  E8 00000000 E		call ReadChar
+					
+					ret
+ 000000A7  5A		   *	    pop    edx
+ 000000A8  58		   *	    pop    eax
+ 000000A9  C3		   *	    ret    00000h
+ 000000AA			HelpScreen ENDP
+
+ 000000AA			sGotoxy PROC USES edx row: BYTE, col: BYTE
+ 000000AA  55		   *	    push   ebp
+ 000000AB  8B EC	   *	    mov    ebp, esp
+ 000000AD  52		   *	    push   edx
+ 000000AE  8A 55 0C			mov dl, col
+ 000000B1  8A 75 08			mov dh, row
+ 000000B4  E8 00000000 E		call Gotoxy
+					ret
+ 000000B9  5A		   *	    pop    edx
+ 000000BA  C9		   *	    leave  
+ 000000BB  C2 0008	   *	    ret    00008h
+ 000000BE			sGotoxy ENDP
+
+ 000000BE			Game PROC  USES eax ebx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE, year: DWORD
+ 000000BE  55		   *	    push   ebp
+ 000000BF  8B EC	   *	    mov    ebp, esp
+ 000000C1  50		   *	    push   eax
+ 000000C2  53		   *	    push   ebx
+ 000000C3  52		   *	    push   edx
+ 000000C4  E8 00000000 E		call Clrscr
+					
+					INVOKE sGotoxy, 1, 4
+ 000000C9  6A 04	   *	    push   +000000004h
+ 000000CB  6A 01	   *	    push   +000000001h
+ 000000CD  E8 FFFFFFD8	   *	    call   sGotoxy
+ 000000D2  B8 0000004F			mov eax, red*16 + white
+ 000000D7  E8 00000000 E		call SetTextColor
+ 000000DC  8B 55 0C			mov edx, _title
+ 000000DF  E8 00000000 E		call WriteString
+
+					INVOKE sGotoxy, 2, 4
+ 000000E4  6A 04	   *	    push   +000000004h
+ 000000E6  6A 02	   *	    push   +000000002h
+ 000000E8  E8 FFFFFFBD	   *	    call   sGotoxy
+ 000000ED  B8 0000001F			mov eax, blue*16 + white
+ 000000F2  E8 00000000 E		call SetTextColor
+ 000000F7  8B 55 10			mov edx, artist
+ 000000FA  E8 00000000 E		call WriteString
+
+					INVOKE sGotoxy, 3, 4
+ 000000FF  6A 04	   *	    push   +000000004h
+ 00000101  6A 03	   *	    push   +000000003h
+ 00000103  E8 FFFFFFA2	   *	    call   sGotoxy
+ 00000108  B8 000000EF			mov eax, yellow*16 + white
+ 0000010D  E8 00000000 E		call SetTextColor
+ 00000112  8B 45 14			mov eax, year
+ 00000115  E8 00000000 E		call WriteDec
+					
+ 0000011A  B8 0000000F			mov eax, black*16 + white
+ 0000011F  E8 00000000 E		call SetTextColor
+					
+ 00000124  8B 5D 08			mov ebx, level
+ 00000127  E8 00000000 E		call ReadChar
+					
+					ret
+ 0000012C  5A		   *	    pop    edx
+ 0000012D  5B		   *	    pop    ebx
+ 0000012E  58		   *	    pop    eax
+ 0000012F  C9		   *	    leave  
+ 00000130  C2 0010	   *	    ret    00010h
+ 00000133			Game ENDP
+
+ 00000133			TitleScreen PROC USES eax edx
+ 00000133  50		   *	    push   eax
+ 00000134  52		   *	    push   edx
+ 00000135			TitleStart: 
+					INVOKE Str_copy,
+						offset BF_DEFAULT_FRAMED,
+						offset VSYNC
+ 00000135  68 00000669 R   *	    push   dword  ptr OFFSET FLAT: VSYNC
+ 0000013A  68 00000F33 R   *	    push   dword  ptr OFFSET FLAT: BF_DEFAULT_FRAMED
+ 0000013F  E8 00000000 E   *	    call   Str_copy
+					
+					INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
+ 00000144  6A 01	   *	    push   +000000001h
+ 00000146  6A 10	   *	    push   +000000010h
+ 00000148  6A 06	   *	    push   +000000006h
+ 0000014A  68 000000A8 R   *	    push   dword  ptr OFFSET FLAT: TXT_LOGO
+ 0000014F  E8 FFFFFEAC	   *	    call   ClipText
 					INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
- 00000091  6A 09	   *	    push   +000000009h
- 00000093  6A 1D	   *	    push   +00000001Dh
- 00000095  6A 05	   *	    push   +000000005h
- 00000097  68 000001B1 R   *	    push   dword  ptr OFFSET FLAT: TXT_TITLE_MIDDLE
- 0000009C  E8 FFFFFF5F	   *	    call   ClipText
- 000000A1  BA 00000650 R		mov edx, offset VSYNC
- 000000A6  E8 00000000 E		call WriteString
+ 00000154  6A 09	   *	    push   +000000009h
+ 00000156  6A 1D	   *	    push   +00000001Dh
+ 00000158  6A 05	   *	    push   +000000005h
+ 0000015A  68 000001CA R   *	    push   dword  ptr OFFSET FLAT: TXT_TITLE_MIDDLE
+ 0000015F  E8 FFFFFE9C	   *	    call   ClipText
+					INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 4, 16
+ 00000164  6A 10	   *	    push   +000000010h
+ 00000166  6A 04	   *	    push   +000000004h
+ 00000168  6A 03	   *	    push   +000000003h
+ 0000016A  68 00000244 R   *	    push   dword  ptr OFFSET FLAT: TXT_AUTHORS
+ 0000016F  E8 FFFFFE8C	   *	    call   ClipText
+					
+ 00000174  E8 00000000 E		call Clrscr
+ 00000179  BA 00000669 R		mov edx, offset VSYNC
+ 0000017E  E8 00000000 E		call WriteString
+
+ 00000183			TitleWaitAction:
+
+ 00000183  E8 00000000 E		call ReadKey
+					
+ 00000188  66| 83 FA 1B			cmp dx, VK_ESCAPE
+ 0000018C  74 43			je TitleFinish
+
+ 0000018E  66| 83 FA 70			cmp dx, VK_F1
+ 00000192  74 33			je TitleGoHelp
+
+ 00000194  66| 83 FA 31			cmp dx, 31h
+ 00000198  74 13			je TitleGoEasy
+
+ 0000019A  66| 83 FA 32			cmp dx, 32h
+ 0000019E  74 27			je TitleGoNormal
+
+ 000001A0  66| 83 FA 31			cmp dx, 31h
+ 000001A4  74 21			je TitleGoHard
+
 					INVOKE WaitStep
- 000000AB  E8 FFFFFF95	   *	    call   WaitStep
+ 000001A6  E8 FFFFFE9A	   *	    call   WaitStep
+ 000001AB  EB D6			jmp TitleWaitAction
 
- 000000B0  C3				ret
- 000000B1			TitleScreen ENDP
+ 000001AD			TitleGoEasy:
+					INVOKE Game, offset LEVEL_EASY, offset META_EASY_TITLE, offset META_EASY_ARTIST, META_EASY_YEAR
+ 000001AD  FF 35 000000A4 R *	    push   META_EASY_YEAR
+ 000001B3  68 0000009E R   *	    push   dword  ptr OFFSET FLAT: META_EASY_ARTIST
+ 000001B8  68 0000008F R   *	    push   dword  ptr OFFSET FLAT: META_EASY_TITLE
+ 000001BD  68 0000008B R   *	    push   dword  ptr OFFSET FLAT: LEVEL_EASY
+ 000001C2  E8 FFFFFEF7	   *	    call   Game
+					;jmp PoncutationScreen
+ 000001C7			TitleGoNormal:
 
- 000000B1			main PROC
+ 000001C7			TitleGoHard:
+
+ 000001C7			TitleGoHelp:
+					INVOKE HelpScreen
+ 000001C7  E8 FFFFFEA6	   *	    call   HelpScreen
+ 000001CC  E9 FFFFFF64			jmp TitleStart
+
+ 000001D1			TitleFinish:
+					ret
+ 000001D1  5A		   *	    pop    edx
+ 000001D2  58		   *	    pop    eax
+ 000001D3  C3		   *	    ret    00000h
+ 000001D4			TitleScreen ENDP
+
+ 000001D4			main PROC
 					; Starts frame-sync timer
- 000000B1  E8 00000000 E		call GetMseconds
- 000000B6  A3 0000064C R		mov LAST_STEP, eax
+ 000001D4  E8 00000000 E		call GetMseconds
+ 000001D9  A3 00000665 R		mov LAST_STEP, eax
 
 					; First screen
 					INVOKE TitleScreen
- 000000BB  E8 FFFFFFB2	   *	    call   TitleScreen
+ 000001DE  E8 FFFFFF50	   *	    call   TitleScreen
 
 					; Bye
- 000000C0  E8 00000000 E		call ReadChar
 					exit
- 000000C5  6A 00	   *	    push   +000000000h
- 000000C7  E8 00000000 E   *	    call   ExitProcess
- 000000CC			main ENDP
+ 000001E3  6A 00	   *	    push   +000000000h
+ 000001E5  E8 00000000 E   *	    call   ExitProcess
+ 000001EA			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.12.25830.2	    12/06/17 02:26:45
+Microsoft (R) Macro Assembler Version 14.12.25830.2	    12/08/17 17:20:22
 main.asm						     Symbols 2 - 1
 
 
@@ -689,8 +835,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000020AE Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000CC Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00001EAB Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001EA Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -719,6 +865,11 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Game . . . . . . . . . . . . . .	P Near	 000000BE _TEXT	Length= 00000075 Public STDCALL
+  level  . . . . . . . . . . . .	DWord	 bp + 00000008
+  _title . . . . . . . . . . . .	DWord	 bp + 0000000C
+  artist . . . . . . . . . . . .	DWord	 bp + 00000010
+  year . . . . . . . . . . . . .	DWord	 bp + 00000014
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -744,6 +895,7 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HelpScreen . . . . . . . . . . .	P Near	 00000072 _TEXT	Length= 00000038 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -787,7 +939,14 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-TitleScreen  . . . . . . . . . .	P Near	 00000072 _TEXT	Length= 0000003F Public STDCALL
+TitleScreen  . . . . . . . . . .	P Near	 00000133 _TEXT	Length= 000000A1 Public STDCALL
+  TitleStart . . . . . . . . . .	L Near	 00000135 _TEXT	
+  TitleWaitAction  . . . . . . .	L Near	 00000183 _TEXT	
+  TitleGoEasy  . . . . . . . . .	L Near	 000001AD _TEXT	
+  TitleGoNormal  . . . . . . . .	L Near	 000001C7 _TEXT	
+  TitleGoHard  . . . . . . . . .	L Near	 000001C7 _TEXT	
+  TitleGoHelp  . . . . . . . . .	L Near	 000001C7 _TEXT	
+  TitleFinish  . . . . . . . . .	L Near	 000001D1 _TEXT	
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WaitStep . . . . . . . . . . . .	P Near	 00000045 _TEXT	Length= 0000002D Public STDCALL
   JumpSleep  . . . . . . . . . .	L Near	 00000065 _TEXT	
@@ -808,8 +967,11 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 000000B1 _TEXT	Length= 0000001B Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 000001D4 _TEXT	Length= 00000016 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+sGotoxy  . . . . . . . . . . . .	P Near	 000000AA _TEXT	Length= 00000014 Public STDCALL
+  row  . . . . . . . . . . . . .	Byte	 bp + 00000008
+  col  . . . . . . . . . . . . .	Byte	 bp + 0000000C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
@@ -828,8 +990,8 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
-BF_DEFAULT_EMPTY . . . . . . . .	Byte	 000017E3 _DATA	
-BF_DEFAULT_FRAMED  . . . . . . .	Byte	 00000F1A _DATA	
+BF_DEFAULT_EMPTY . . . . . . . .	Byte	 000016EE _DATA	
+BF_DEFAULT_FRAMED  . . . . . . .	Byte	 00000F33 _DATA	
 BLOCKED_STEPS  . . . . . . . . .	Number	 0000000Ah   
 B_ANY  . . . . . . . . . . . . .	Number	 00000006h   
 B_BLUE . . . . . . . . . . . . .	Number	 00000002h   
@@ -920,7 +1082,7 @@ I_REMOVING . . . . . . . . . . .	Number	 00000001h
 KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
 KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
-LAST_STEP  . . . . . . . . . . .	DWord	 0000064C _DATA	
+LAST_STEP  . . . . . . . . . . .	DWord	 00000665 _DATA	
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
 LEN_B_COLORS . . . . . . . . . .	Number	 00000007h   
@@ -939,14 +1101,10 @@ LQ_TITLE_MIDDLE  . . . . . . . .	Number	 00000005h
 L_COLOR  . . . . . . . . . . . .	Number	 00000002h   
 L_EMPTY  . . . . . . . . . . . .	Number	 00000000h   
 L_EOG  . . . . . . . . . . . . .	Number	 00000001h   
-MAIN_INSTRUCTIONS  . . . . . . .	Number	 000000FDh   
-MAIN_PONCTUATION . . . . . . . .	Number	 000000FEh   
 MAIN_Q_INDEX . . . . . . . . . .	Byte	 00000005 _DATA	
 MAIN_Q_REPEAT_COUNTER  . . . . .	Byte	 00000006 _DATA	
 MAIN_Q . . . . . . . . . . . . .	DWord	 00000001 _DATA	
-MAIN_START . . . . . . . . . . .	Number	 000000FFh   
 MAIN_TIME_STEP . . . . . . . . .	Number	 00000028h   
-MAIN_TITLE . . . . . . . . . . .	Number	 000000FEh   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
 MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
@@ -972,6 +1130,9 @@ MB_USERICON  . . . . . . . . . .	Number	 00000080h
 MB_YESNOCANCEL . . . . . . . . .	Number	 00000003h   
 MB_YESNO . . . . . . . . . . . .	Number	 00000004h   
 MENU_EVENT . . . . . . . . . . .	Number	 00000008h   
+META_EASY_ARTIST . . . . . . . .	Byte	 0000009E _DATA	
+META_EASY_TITLE  . . . . . . . .	Byte	 0000008F _DATA	
+META_EASY_YEAR . . . . . . . . .	DWord	 000000A4 _DATA	
 MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h   
 MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
 NULL . . . . . . . . . . . . . .	Number	 00000000h   
@@ -1006,15 +1167,15 @@ SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
-TXT_AUTHORS  . . . . . . . . . .	Byte	 0000022B _DATA	
-TXT_FINISH . . . . . . . . . . .	Byte	 000005E5 _DATA	
-TXT_INSTRUCTIONS . . . . . . . .	Byte	 000002F9 _DATA	
-TXT_LOGO . . . . . . . . . . . .	Byte	 0000008F _DATA	
-TXT_MEDAL  . . . . . . . . . . .	Byte	 00000597 _DATA	
-TXT_POINTS . . . . . . . . . . .	Byte	 00000513 _DATA	
-TXT_PTS  . . . . . . . . . . . .	Byte	 000005D6 _DATA	
-TXT_REWARD_GOLD  . . . . . . . .	Byte	 000005AF _DATA	
-TXT_TITLE_MIDDLE . . . . . . . .	Byte	 000001B1 _DATA	
+TXT_AUTHORS  . . . . . . . . . .	Byte	 00000244 _DATA	
+TXT_FINISH . . . . . . . . . . .	Byte	 000005FE _DATA	
+TXT_INSTRUCTIONS . . . . . . . .	Byte	 00000312 _DATA	
+TXT_LOGO . . . . . . . . . . . .	Byte	 000000A8 _DATA	
+TXT_MEDAL  . . . . . . . . . . .	Byte	 000005B0 _DATA	
+TXT_POINTS . . . . . . . . . . .	Byte	 0000052C _DATA	
+TXT_PTS  . . . . . . . . . . . .	Byte	 000005EF _DATA	
+TXT_REWARD_GOLD  . . . . . . . .	Byte	 000005C8 _DATA	
+TXT_TITLE_MIDDLE . . . . . . . .	Byte	 000001CA _DATA	
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
 VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
 VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
@@ -1093,7 +1254,7 @@ VK_SPACE . . . . . . . . . . . .	Number	 00000020h
 VK_SUBTRACT  . . . . . . . . . .	Number	 0000006Dh   
 VK_TAB . . . . . . . . . . . . .	Number	 00000009h   
 VK_UP  . . . . . . . . . . . . .	Number	 00000026h   
-VSYNC  . . . . . . . . . . . . .	Byte	 00000650 _DATA	
+VSYNC  . . . . . . . . . . . . .	Byte	 00000669 _DATA	
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
