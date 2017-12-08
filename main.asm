@@ -42,13 +42,15 @@ L_COLOR = 2
 
 ; GAME STATES
 PLAYER_POS BYTE ? ; WHICH LANE (0..LEN_Q_LANES)
-MAIN_Q DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE
-MAIN_Q_INDEX BYTE 0	; CURRENT LEVEL QUEUE POSITION/INDEX
+MAIN_Q_ESI DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE + INDEX
 MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
 PLAYER_BLOCKED_X BYTE 0 ; HOW MANY STEPS PLAYER WILL CONTINUE BLOCKED
 PLAYER_INVENTORY BYTE LEN_Q_LANES DUP (7 DUP (I_EMPTY)) ; IVENTORY ON EACH LANE
 PLAYER_POINTS DWORD 0 ; PONCUTATION ACCUMULATOR
 GAME_LANES BYTE LEN_Q_LANES DUP (32 DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
+GAME_LANES_0 = offset GAME_LANES
+GAME_LANES_1 = offset GAME_LANES + 32
+GAME_LANES_2 = offset GAME_LANES + 64
 
 ; GLYPHS
 GLYPH_PLAYER BYTE 3 DUP (178),254,0
@@ -236,14 +238,84 @@ HelpScreen PROC USES eax edx
 	ret
 HelpScreen ENDP
 
-sGotoxy PROC USES edx row: BYTE, col: BYTE
+sGotoxy PROC USES edx, row: BYTE, col: BYTE
 	mov dl, col
 	mov dh, row
 	call Gotoxy
 	ret
 sGotoxy ENDP
 
-Game PROC  USES eax ebx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE, year: DWORD
+PopStep PROC USES eax esi, dest_i: DWORD
+	mov edi, dest_i
+	mov BYTE PTR [GAME_LANES_0+edi], L_EMPTY
+	mov BYTE PTR [GAME_LANES_1+edi], L_EMPTY
+	mov BYTE PTR [GAME_LANES_2+edi], L_EMPTY
+	
+	; Se estiver em um loop de repetições vazias
+	mov al, MAIN_Q_REPEAT_COUNTER
+	cmp al, 0
+	je EmptyRep
+
+GrabFromQueue:
+	; Carrega a próxima instrução do esi
+	mov esi, MAIN_Q_ESI
+	movzx eax, BYTE PTR [esi]
+	inc esi
+	mov MAIN_Q_ESI, esi
+
+	; O que fazer?
+	cmp al, B_ANY
+	jle FirstLaneBrick
+
+	cmp al, ((B_ANY+1)*2)
+	jl SecondLaneBrick
+
+	cmp al, ((B_ANY+1)*3)
+	jl ThirdLaneBrick
+
+	cmp al, Q_NEXT
+	je FinishStep
+
+	cmp al, Q_EOG
+	je AllLanesEOG
+
+StartRepetition:
+	sub al, (Q_REPEAT_X-1)
+	mov MAIN_Q_REPEAT_COUNTER, al
+	ret
+
+FirstLaneBrick:
+	add al, L_COLOR
+	mov BYTE PTR [GAME_LANES_0+edi], al
+	jmp GrabFromQueue
+
+SecondLaneBrick:
+	add al, L_COLOR
+	sub al, (B_ANY+1)
+	mov BYTE PTR [GAME_LANES_1+edi], al
+	jmp GrabFromQueue
+
+ThirdLaneBrick:
+	add al, L_COLOR
+	sub al, ((B_ANY+1)*2)
+	mov BYTE PTR [GAME_LANES_2+edi], al
+	jmp GrabFromQueue
+
+AllLanesEOG:
+	mov BYTE PTR [GAME_LANES_0+edi], L_EOG
+	mov BYTE PTR [GAME_LANES_1+edi], L_EOG
+	mov BYTE PTR [GAME_LANES_2+edi], L_EOG
+
+EmptyRep:
+	dec al
+	mov MAIN_Q_REPEAT_COUNTER, al
+	ret
+
+FinishStep:
+	ret
+PopStep ENDP
+
+Game PROC  USES eax ecx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE, year: DWORD
 	call Clrscr
 	
 	INVOKE sGotoxy, 1, 4
@@ -267,7 +339,15 @@ Game PROC  USES eax ebx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE
 	mov eax, black*16 + white
 	call SetTextColor
 	
-	mov ebx, level
+	mov eax, level
+	mov MAIN_Q_ESI, eax
+	mov ecx, 0
+GameFillIn:
+	INVOKE PopStep, ecx
+	inc ecx
+	cmp ecx, 32
+	jl GameFillIn
+
 	call ReadChar
 	
 	ret
