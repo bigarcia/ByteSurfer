@@ -610,9 +610,40 @@ GameMainLoop:
 	INVOKE GameDrawPoints
 	INVOKE sGotoyx, 25, 88
 
+	call ReadKey
+	cmp dx, VK_DOWN
+	je PlayerGoDown
+	cmp dx, VK_UP
+	je PlayerGoUp
+
+PosMove:
+	INVOKE WaitStep
+	jmp GameMainLoop
+
+
+PlayerGoUp:
+	mov al, PLAYER_POS
+	cmp al, 0
+	jne MoveUp
+	jmp PosMove
+
+MoveUp:
+	dec al
+	mov PLAYER_POS, al
+	jmp PosMove
+
+PlayerGoDown:
+	mov al, PLAYER_POS
+	cmp al, LEN_Q_LANES -1
+	jne MoveDown
+	jmp PosMove
+
+MoveDown:
+	inc al
+	mov PLAYER_POS, al
+	jmp PosMove
+
 GameFinish:
-	call ReadChar
-	
 	ret
 Game ENDP
 
