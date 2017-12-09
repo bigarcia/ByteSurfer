@@ -276,7 +276,7 @@ PopStep PROC USES eax esi, dest_i: DWORD
 	; Se estiver em um loop de repetições vazias
 	mov al, MAIN_Q_REPEAT_COUNTER
 	cmp al, 0
-	je EmptyRep
+	jne NonEmptyRep
 
 GrabFromQueue:
 	; Carrega a próxima instrução do esi
@@ -328,7 +328,7 @@ AllLanesEOG:
 	mov BYTE PTR [GAME_LANES_1+edi], L_EOG
 	mov BYTE PTR [GAME_LANES_2+edi], L_EOG
 
-EmptyRep:
+NonEmptyRep:
 	dec al
 	mov MAIN_Q_REPEAT_COUNTER, al
 	ret
@@ -667,7 +667,7 @@ main PROC
 	mov LAST_STEP, eax
 
 	; First screen
-	INVOKE Game, offset LEVEL_EASY, offset META_EASY
+	INVOKE TitleScreen
 
 	; Bye
 	exit
