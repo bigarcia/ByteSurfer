@@ -327,6 +327,7 @@ AllLanesEOG:
 	mov BYTE PTR [GAME_LANES_0+edi], L_EOG
 	mov BYTE PTR [GAME_LANES_1+edi], L_EOG
 	mov BYTE PTR [GAME_LANES_2+edi], L_EOG
+	ret
 
 NonEmptyRep:
 	dec al
