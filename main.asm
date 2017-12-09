@@ -60,6 +60,9 @@ GAME_LANES_2 = (offset GAME_LANES + (LEN_L_BRICKS * 2))
 G_INV_EMPTY = 176
 G_INV_NODE = 219
 G_INV_SPLT = 175
+G_LANE_EMPTY = ' '
+G_LANE_NODE = 177
+G_LANE_EOG = 250
 G_LANE_BORDER = 205
 G_LANE_SPLT = 196
 G_FRAME = 254
@@ -447,7 +450,103 @@ GameDrawPlayer PROC USES eax edx
 	ret
 GameDrawPlayer ENDP
 
-GameDrawLanes PROC
+GameDrawLanes PROC USES eax ebx edx esi
+	mov esi, 0
+	mov bl, 0
+DrawLane:
+	mov al, bl
+	mov dl, 4
+	mul dl
+	add al, 7
+	INVOKE sGotoyx, al, 26
+	mov bh, 0
+
+DrawLanesItem:
+	movzx eax, BYTE PTR [GAME_LANES_0+esi]
+	inc esi
+
+	cmp al, (L_COLOR+B_WHITE)
+	je DrawLanesWhite
+
+	cmp al, (L_COLOR+B_PURPLE)
+	je DrawInvetoryPurple
+
+	cmp al, (L_COLOR+B_BLUE)
+	je DrawInvetoryBlue
+
+	cmp al, (L_COLOR+B_GREEN)
+	je DrawInvetoryGreen
+
+	cmp al, (L_COLOR+B_YELLOW)
+	je DrawInvetoryYellow
+
+	cmp al, (L_COLOR+B_RED)
+	je DrawInvetoryRed
+
+	cmp al, (L_EOG)
+	je DrawInventoryEOG
+
+DrawLanesEmpty:
+	mov eax, white+(black*16)
+	call SetTextColor
+	mov al, G_LANE_EMPTY
+	call WriteChar
+	jmp LanesFinishItem
+
+DrawInventoryEOG:
+	mov eax, white+(black*16)
+	call SetTextColor
+	mov al, G_LANE_EOG
+	call WriteChar
+	jmp LanesFinishItem
+
+DrawLanesWhite:
+	mov eax, white+(black*16)
+	call SetTextColor
+	jmp DrawLanesNode
+
+DrawInvetoryPurple:
+	mov eax, magenta+(black*16)
+	call SetTextColor
+	jmp DrawLanesNode
+
+DrawInvetoryBlue:
+	mov eax, blue+(black*16)
+	call SetTextColor
+	jmp DrawLanesNode
+
+DrawInvetoryGreen:
+	mov eax, green+(black*16)
+	call SetTextColor
+	jmp DrawLanesNode
+
+DrawInvetoryYellow:
+	mov eax, yellow+(black*16)
+	call SetTextColor
+	jmp DrawLanesNode
+
+DrawInvetoryRed:
+
+DrawLanesNode:
+	mov al, G_LANE_NODE
+	call WriteChar
+
+LanesFinishItem:
+	mov al, ' '
+	call WriteChar
+
+	inc bh
+	cmp bh, LEN_L_BRICKS
+	jl DrawLanesItem
+
+LanesFinishLane:
+	inc bl
+	cmp bl, LEN_Q_LANES
+	jl DrawLane
+
+	mov eax, white+(black*16)
+	call SetTextColor
+
 	ret
 GameDrawLanes ENDP
 
@@ -494,7 +593,7 @@ GameDrawStaticFrame:
 GameMainLoop:
 	INVOKE GameDrawInventory
 	INVOKE GameDrawPlayer
-	;INVOKE GameDrawLanes
+	INVOKE GameDrawLanes
 	;INVOKE GameDrawPoints
 	INVOKE sGotoyx, 25, 88
 
