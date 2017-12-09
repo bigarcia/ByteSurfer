@@ -190,7 +190,20 @@ BF_DEFAULT_FRAMED BYTE \
 	88 DUP (G_FRAME), 0
 BF_DEFAULT_EMPTY BYTE 22 DUP (88 DUP (" "), 13, 10), 0
 
+; CURSOR HACKS
+CCI CONSOLE_CURSOR_INFO <>
+CHAND DD ?
+
 .code
+
+HideCursor PROC USES eax
+	invoke GetStdHandle, STD_OUTPUT_HANDLE
+	mov CHAND, eax
+	invoke GetConsoleCursorInfo, CHAND, addr CCI
+	mov CCI.bVisible, FALSE
+	invoke SetConsoleCursorInfo, CHAND, addr CCI
+	ret
+HideCursor ENDP
 
 ClipText PROC USES eax ebx ecx edx, src: PTR BYTE, lines: DWORD, row: DWORD, col: DWORD
 	mov ebx, src
@@ -608,7 +621,6 @@ GameMainLoop:
 	INVOKE GameDrawPlayer
 	INVOKE GameDrawLanes
 	INVOKE GameDrawPoints
-	INVOKE sGotoyx, 25, 88
 
 	call ReadKey
 	cmp dx, VK_DOWN
@@ -705,6 +717,9 @@ main PROC
 	; Starts frame-sync timer
 	call GetMseconds
 	mov LAST_STEP, eax
+
+	; Get rid of CURSOR
+	INVOKE HideCursor
 
 	; First screen
 	INVOKE TitleScreen
