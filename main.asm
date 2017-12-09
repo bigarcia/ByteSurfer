@@ -8,6 +8,9 @@ P_BLUE = 20
 P_GREEN = 30
 P_YELLOW = 50
 P_RED = 80
+MEDAL_GOLD = 90
+MEDAL_SILVER = 55
+MEDAL_BRONZE = 20
 
 ; ENUM: Bricks
 B_WHITE = 0
@@ -86,6 +89,12 @@ LEVEL_EASY \
 LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
+; MUSIC FILES
+MUSIC_TITLE BYTE "title.mp3", 0
+MUSIC_EASY BYTE "easy.mp3", 0
+MUSIC_NORMAL BYTE "normal.mp3", 0
+MUSIC_HARD BYTE "hard.mp3", 0
+
 ; METAS
 META_EASY \
 	BYTE "Listen to your heart", 0
@@ -102,6 +111,9 @@ META_HARD \
 	BYTE "Joan Jett & The Blackhearts", 0
 	BYTE "1981", 0
 
+PTS_TOTAL_EASY = 7000
+PTS_TOTAL_NORMAL = 8000
+PTS_TOTAL_HARD = 15000
 
 ; TEXTS
 TXT_LOGO \
@@ -149,24 +161,38 @@ TXT_INSTRUCTIONS \
 LQ_INSTRUCTIONS = 18
 
 TXT_POINTS \
-	BYTE 201,205,187,218,196,191,218,191,218,218,196,191,194,196,191,218,196,191,218,194,191,194," ",194,194," "," ",218,196,191,218,194,191,194,218,196,191,218,191,218,218,196,191, 0
-	BYTE 186," "," ",179," ",179,179,179,179,179," ",194,195,194,217,195,196,180," ",179," ",179," ",179,179," "," ",195,196,180," ",179," ",179,179," ",179,179,179,179,192,196,191, 0
-	BYTE 200,205,188,192,196,217,217,192,217,192,196,217,193,192,196,193," ",193," ",193," ",192,196,217,193,196,217,193," ",193," ",193," ",193,192,196,217,217,192,217,192,196,217, 0
+	BYTE 201,205,187,218,196,191,218,191,218,218,196,191,194,196,191,218,196,191,218,194,191,194,32,194,194,32,32,218,196,191,218,194,191,194,218,196,191,218,191,218,218,196,191, 0
+	BYTE 186,32,32,179,32,179,179,179,179,179,32,194,195,194,217,195,196,180,32,179,32,179,32,179,179,32,32,195,196,180,32,179,32,179,179,32,179,179,179,179,192,196,191, 0
+	BYTE 200,205,188,192,196,217,217,192,217,192,196,217,193,192,196,193,32,193,32,193,32,192,196,217,193,196,217,193,32,193,32,193,32,193,192,196,217,217,192,217,192,196,217, 0
 LQ_POINTS = 3
 
 TXT_MEDAL \
 	BYTE "HERE'S A MEDAL FOR YOU:",0
 
 TXT_REWARD_GOLD \
-	BYTE 201, 205, 187, 201, 205, 187, 203, "  ", 201, 203, 187, 0
-	BYTE 186, " ", 203, 186, " ", 186, 186, "   ", 186, 186, 0
-	BYTE 200, 205, 188, 200, 205, 188, 202, 205, 188, 205, 202, 188, 0
+	BYTE 201,205,187,201,205,187,203,32,32,201,203,187, 0
+	BYTE 186,32,203,186,32,186,186,32,32,32,186,186, 0
+	BYTE 200,205,188,200,205,188,202,205,188,205,202,188, 0
 LQ_REWARD_GOLD = 3
-                 
-TXT_PTS \
+
+TXT_REWARD_SILVER \
+	BYTE 201,205,187,203,203,32,203,32,32,203,201,205,187,203,205,187, 0
+	BYTE 200, 205, 187,186,186,32,200,187,201,188,186,185,32,204,203,188, 0
+	BYTE 200,205,188,202,202,205,188,200,188,32,200,205,188,202,200,205, 0
+LQ_REWARD_SILVER = 3
+
+TXT_REWARD_BRONZE \
+	BYTE 201,187,32,203,205,187,201,205,187,201,187,201,201,205,187,201,205,187, 0
+	BYTE 204,202,187,204,203,188,186,32,186,186,186,186,201,205,188,186,185, 0 
+	BYTE 200,205,188,202,200,205,200,205,188,188,200,188,200,205,188,200,205,188, 0
+LQ_REWARD_BRONZE = 3
+               
+TXT_PTS_0 \
 	BYTE "YOU GOT ", 0
+
+TXT_PTS_1 \
 	BYTE " PTS.", 0
-LQ_PTS = 2
+
              
 TXT_FINISH \
 	BYTE "WANNA TRY AGAIN?", 0
@@ -658,6 +684,65 @@ StepMoveLeftLoop:
 	ret
 Step ENDP
 
+MedalScreen PROC USES eax edx, total: DWORD
+	INVOKE Str_copy,
+		offset BF_DEFAULT_FRAMED,
+		offset VSYNC
+	
+	INVOKE ClipText, offset TXT_POINTS, LQ_POINTS, 3, 23 
+	INVOKE ClipText, offset TXT_MEDAL, 1, 7, 33  
+	INVOKE ClipText, offset TXT_PTS_0, 1, 14, 36 
+	INVOKE ClipText, offset TXT_FINISH, LQ_FINISH, 16, 3  
+
+	mov eax, total 
+	mov edx, MEDAL_GOLD 
+	mul edx
+	mov edx, 0
+	mov ebx, 100
+	div ebx
+	cmp PLAYER_POINTS, eax
+	jge RewardGold
+
+	mov eax, total 
+	mov edx, MEDAL_SILVER
+	mul edx
+	mov edx, 0
+	mov ebx, 100
+	div ebx
+	cmp PLAYER_POINTS, eax
+	jge RewardSilver
+
+RewardBronze:
+	INVOKE ClipText, offset TXT_REWARD_BRONZE, LQ_REWARD_BRONZE, 8, 35 
+	jmp RewardFinish
+	
+RewardGold:
+	INVOKE ClipText, offset TXT_REWARD_GOLD, LQ_REWARD_GOLD, 8, 38
+	jmp RewardFinish 
+
+RewardSilver:
+	INVOKE ClipText, offset TXT_REWARD_SILVER, LQ_REWARD_SILVER, 8, 36
+		
+RewardFinish:
+	call Clrscr
+	mov edx, offset VSYNC
+	call WriteString
+
+	INVOKE sGotoyx, 14, 44
+	mov eax, PLAYER_POINTS
+	call WriteDec
+
+	mov al, " "
+	call WriteChar
+
+	mov edx, offset TXT_PTS_1
+	call WriteString
+
+	call ReadChar
+	ret
+
+MedalScreen ENDP
+
 
 Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 	; Inicia o ponteiro do QUEUE
@@ -782,13 +867,17 @@ TitleWaitAction:
 
 TitleGoEasy:
 	INVOKE Game, offset LEVEL_EASY, offset META_EASY
-
-	;jmp PoncutationScreen
+	INVOKE MedalScreen, PTS_TOTAL_EASY
+	jmp TitleStart
 TitleGoNormal:
 	INVOKE Game, offset LEVEL_NORMAL, offset META_NORMAL
+	INVOKE MedalScreen, PTS_TOTAL_NORMAL
+	jmp TitleStart
 
 TitleGoHard:
 	INVOKE Game, offset LEVEL_HARD, offset META_HARD
+	INVOKE MedalScreen, PTS_TOTAL_HARD
+	jmp TitleStart
 
 TitleGoHelp:
 	INVOKE HelpScreen
@@ -797,6 +886,31 @@ TitleGoHelp:
 TitleFinish:
 	ret
 TitleScreen ENDP
+
+CaptureLevel PROC USES eax	
+CaptureLevelLoop:
+	INVOKE WaitStep
+	call ReadKey
+
+	cmp al, VK_ESCAPE
+	jz CaptureLevelFinish
+
+	cmp al, 0
+	jnz HaveBrick
+
+	mov eax, 0
+	call WriteDec
+	jmp CaptureLevelLoop
+
+HaveBrick:
+	mov eax, 1
+	call WriteDec
+	jmp CaptureLevelLoop
+
+CaptureLevelFinish:	 
+	call ReadChar
+	ret
+CaptureLevel ENDP
 
 main PROC
 	; Starts frame-sync timer
@@ -807,6 +921,8 @@ main PROC
 	INVOKE HideCursor
 
 	; First screen
+	mov PLAYER_POINTS, 3000
+	INVOKE MedalScreen, PTS_TOTAL_EASY
 	INVOKE TitleScreen
 
 	; Bye
