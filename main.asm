@@ -10,17 +10,18 @@ P_YELLOW = 50
 P_RED = 80
 
 ; ENUM: Bricks
-B_GRAY = 0
+B_WHITE = 0
 B_PURPLE = 1
 B_BLUE = 2
 B_GREEN = 3
 B_YELLOW = 4
 B_RED = 5
-B_ANY = 6
 
 ; Game Constants
 LEN_Q_LANES = 3 ; LANES NUMBER
-LEN_B_COLORS = B_ANY+1 ; BRICK COLORS NUMBER
+LEN_B_COLORS = B_RED+1 ; BRICK COLORS NUMBER
+LEN_I_BRICKS = 7 ; BRICKS PER INVENTORY
+LEN_L_BRICKS = 29 ; BRICKS PER LANE
 MAIN_TIME_STEP = 40; OUR DELAY TIME BETWEEN STEPS (miliseconds)
 BLOCKED_STEPS = 10 ; STEPS THE PLAYER WILL BE BLOCKED WHEN OVERFLOWED
 
@@ -45,12 +46,15 @@ PLAYER_POS BYTE ? ; WHICH LANE (0..LEN_Q_LANES)
 MAIN_Q_ESI DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE + INDEX
 MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
 PLAYER_BLOCKED_X BYTE 0 ; HOW MANY STEPS PLAYER WILL CONTINUE BLOCKED
-PLAYER_INVENTORY BYTE LEN_Q_LANES DUP (7 DUP (I_EMPTY)) ; IVENTORY ON EACH LANE
+PLAYER_INVENTORY BYTE LEN_Q_LANES DUP (LEN_I_BRICKS DUP (I_EMPTY)) ; IVENTORY ON EACH LANE
+PLAYER_INVENTORY_0 = offset PLAYER_INVENTORY
+PLAYER_INVENTORY_1 = (offset PLAYER_INVENTORY + 7)
+PLAYER_INVENTORY_2 = (offset PLAYER_INVENTORY + 14)
 PLAYER_POINTS DWORD 0 ; PONCUTATION ACCUMULATOR
-GAME_LANES BYTE LEN_Q_LANES DUP (29 DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
+GAME_LANES BYTE LEN_Q_LANES DUP (LEN_L_BRICKS DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
 GAME_LANES_0 = offset GAME_LANES
-GAME_LANES_1 = (offset GAME_LANES + 29)
-GAME_LANES_2 = (offset GAME_LANES + 58)
+GAME_LANES_1 = (offset GAME_LANES + LEN_L_BRICKS)
+GAME_LANES_2 = (offset GAME_LANES + (LEN_L_BRICKS * 2))
 
 ; GLYPHS
 G_INV_EMPTY = 176
@@ -279,13 +283,13 @@ GrabFromQueue:
 	mov MAIN_Q_ESI, esi
 
 	; O que fazer?
-	cmp al, B_ANY
+	cmp al, B_RED
 	jle FirstLaneBrick
 
-	cmp al, ((B_ANY+1)*2)
+	cmp al, (LEN_B_COLORS*2)
 	jl SecondLaneBrick
 
-	cmp al, ((B_ANY+1)*3)
+	cmp al, (LEN_B_COLORS*3)
 	jl ThirdLaneBrick
 
 	cmp al, Q_NEXT
@@ -306,13 +310,13 @@ FirstLaneBrick:
 
 SecondLaneBrick:
 	add al, L_COLOR
-	sub al, (B_ANY+1)
+	sub al, LEN_B_COLORS
 	mov BYTE PTR [GAME_LANES_1+edi], al
 	jmp GrabFromQueue
 
 ThirdLaneBrick:
 	add al, L_COLOR
-	sub al, ((B_ANY+1)*2)
+	sub al, (LEN_B_COLORS*2)
 	mov BYTE PTR [GAME_LANES_2+edi], al
 	jmp GrabFromQueue
 
@@ -330,7 +334,88 @@ FinishStep:
 	ret
 PopStep ENDP
 
-GameDrawInventory PROC
+GameDrawInventory PROC USES eax ebx edx esi
+	mov esi, 0
+	mov bl, 0
+DrawInventoryLane:
+	mov al, bl
+	add dl, 4
+	mul dl
+	add al, 7
+	INVOKE sGotoyx, al, 4
+	mov bh, 0
+
+DrawInventoryItem:
+	movzx eax, BYTE PTR [PLAYER_INVENTORY_0+esi]
+	inc esi
+
+	cmp al, (I_COLOR+B_WHITE)
+	je DrawInventoryWhite
+
+	cmp al, (I_COLOR+B_PURPLE)
+	je DrawInvetoryPurple
+
+	cmp al, (I_COLOR+B_BLUE)
+	je DrawInvetoryBlue
+
+	cmp al, (I_COLOR+B_GREEN)
+	je DrawInvetoryGreen
+
+	cmp al, (I_COLOR+B_YELLOW)
+	je DrawInvetoryYellow
+
+	cmp al, (I_COLOR+B_RED)
+	je DrawInvetoryRed
+
+DrawInventoryEmpty:
+	mov al, G_INV_EMPTY
+	call WriteChar
+	jmp InventoryFinishItem
+
+DrawInventoryWhite:
+	mov eax, white+(black*16)
+	call SetTextColor
+	jmp DrawInventoryNode
+
+DrawInvetoryPurple:
+	mov eax, magenta+(black*16)
+	call SetTextColor
+	jmp DrawInventoryNode
+
+DrawInvetoryBlue:
+	mov eax, blue+(black*16)
+	call SetTextColor
+	jmp DrawInventoryNode
+
+DrawInvetoryGreen:
+	mov eax, green+(black*16)
+	call SetTextColor
+	jmp DrawInventoryNode
+
+DrawInvetoryYellow:
+	mov eax, yellow+(black*16)
+	call SetTextColor
+	jmp DrawInventoryNode
+
+DrawInvetoryRed:
+
+DrawInventoryNode:
+	mov al, G_INV_NODE
+	call WriteChar
+
+InventoryFinishItem:
+	mov al, ' '
+	call WriteChar
+
+	inc bh
+	cmp bh, LEN_I_BRICKS
+	jl DrawInventoryItem
+
+InventoryFinishLane:
+	inc bl
+	cmp bl, LEN_Q_LANES
+	jl DrawInventoryLane
+
 	ret
 GameDrawInventory ENDP
 
@@ -377,7 +462,7 @@ Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 GameFillIn:
 	INVOKE PopStep, ecx
 	inc ecx
-	cmp ecx, 29
+	cmp ecx, LEN_L_BRICKS
 	jl GameFillIn
 
 GameStaticFrame:
@@ -402,7 +487,7 @@ GameDrawStaticFrame:
 	call WriteString
 
 GameMainLoop:
-	;INVOKE GameDrawInventory
+	INVOKE GameDrawInventory
 	INVOKE GameDrawPlayer
 	;INVOKE GameDrawLanes
 	;INVOKE GameDrawPoints
@@ -473,7 +558,7 @@ main PROC
 	mov LAST_STEP, eax
 
 	; First screen
-	INVOKE Game, offset LEVEL_EASY, offset META_EASY
+	INVOKE TitleScreen
 
 	; Bye
 	exit
