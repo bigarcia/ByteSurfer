@@ -47,7 +47,7 @@ MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
 PLAYER_BLOCKED_X BYTE 0 ; HOW MANY STEPS PLAYER WILL CONTINUE BLOCKED
 PLAYER_INVENTORY BYTE LEN_Q_LANES DUP (7 DUP (I_EMPTY)) ; IVENTORY ON EACH LANE
 PLAYER_POINTS DWORD 0 ; PONCUTATION ACCUMULATOR
-GAME_LANES BYTE LEN_Q_LANES DUP (32 DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
+GAME_LANES BYTE LEN_Q_LANES DUP (29 DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
 GAME_LANES_0 = offset GAME_LANES
 GAME_LANES_1 = offset GAME_LANES + 32
 GAME_LANES_2 = offset GAME_LANES + 64
@@ -61,6 +61,7 @@ G_INV_SPLT = 175
 G_LANE_BORDER = 205
 G_LANE_SPLT = 196
 G_FRAME = 254
+G_EOG = 250
 GLYPH_LANE_BORDER BYTE 80 DUP (G_LANE_BORDER), 0
 GLYPH_LANE_SPLT BYTE 80 DUP (G_LANE_SPLT), 0
 GLYPH_INV_SPLT BYTE G_INV_SPLT, 0
@@ -249,12 +250,12 @@ HelpScreen PROC USES eax edx
 	ret
 HelpScreen ENDP
 
-sGotoxy PROC USES edx, row: BYTE, col: BYTE
+sGotoyx PROC USES edx, row: BYTE, col: BYTE
 	mov dl, col
 	mov dh, row
 	call Gotoxy
 	ret
-sGotoxy ENDP
+sGotoyx ENDP
 
 PopStep PROC USES eax esi, dest_i: DWORD
 	mov edi, dest_i
@@ -326,15 +327,54 @@ FinishStep:
 	ret
 PopStep ENDP
 
-Game PROC  USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
+GameDrawInventory PROC
+	ret
+GameDrawInventory ENDP
+
+GameDrawPlayer PROC USES eax edx
+	INVOKE sGotoyx, 7, 20
+	mov edx, offset GLYPH_PLAYER_EMPTY
+	call WriteString
+	INVOKE sGotoyx, 11, 20
+	mov edx, offset GLYPH_PLAYER_EMPTY
+	call WriteString
+	INVOKE sGotoyx, 15, 20
+	mov edx, offset GLYPH_PLAYER_EMPTY
+	call WriteString
+
+	mov al, PLAYER_POS
+	mov dl, 4
+	mul dl
+	add al, 7
+
+	INVOKE sGotoyx, al, 20
+	mov edx, offset GLYPH_PLAYER
+	call WriteString
+
+	ret
+GameDrawPlayer ENDP
+
+GameDrawLanes PROC
+	ret
+GameDrawLanes ENDP
+
+GameDrawPoints PROC
+	ret
+GameDrawPoints ENDP
+
+Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
+	; Inicia o ponteiro do QUEUE
 	mov eax, level
 	mov MAIN_Q_ESI, eax
 	mov ecx, 0
 
+	; Dados iniciais
+	mov PLAYER_POS, 1
+
 GameFillIn:
 	INVOKE PopStep, ecx
 	inc ecx
-	cmp ecx, 32
+	cmp ecx, 29
 	jl GameFillIn
 
 GameStaticFrame:
@@ -357,6 +397,12 @@ GameDrawStaticFrame:
 	call Clrscr
 	mov edx, offset VSYNC
 	call WriteString
+
+GameMainLoop:
+	;INVOKE GameDrawInventory
+	INVOKE GameDrawPlayer
+	;INVOKE GameDrawLanes
+	;INVOKE GameDrawPoints
 
 GameFinish:
 	call ReadChar
@@ -424,7 +470,7 @@ main PROC
 	mov LAST_STEP, eax
 
 	; First screen
-	INVOKE TitleScreen
+	INVOKE Game, offset LEVEL_EASY, offset META_EASY
 
 	; Bye
 	exit
