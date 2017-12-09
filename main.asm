@@ -61,6 +61,9 @@ G_INV_SPLT = 175
 G_LANE_BORDER = 205
 G_LANE_SPLT = 196
 G_FRAME = 254
+GLYPH_LANE_BORDER BYTE 80 DUP (G_LANE_BORDER), 0
+GLYPH_LANE_SPLT BYTE 80 DUP (G_INV_SPLT), 0
+GLYPH_INV_SPLT BYTE G_INV_SPLT, 0
 
 ; LEVELS
 LEVEL_EASY BYTE Q_REPEAT_X+31,Q_EOG
@@ -69,17 +72,20 @@ LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
 
 ; METAS
-META_EASY_TITLE BYTE "Listen to your heart", 0
-META_EASY_ARTIST BYTE "Roxette", 0
-META_EASY_YEAR DWORD 1988
+META_EASY \
+	BYTE "Listen to your heart", 0
+	BYTE "Roxette", 0
+	BYTE "1988", 0
 
-META_NORMAL_TITLE BYTE "Seven Nation Army", 0
-META_NORMAL_ARTIST BYTE "The White Stripes", 0
-META_NORMAL_YEAR DWORD 2003
+META_NORMAL \
+	BYTE "Seven Nation Army", 0
+	BYTE "The White Stripes", 0
+	BYTE "2003", 0
 
-META_HARD_TITLE BYTE "I Love Rock 'n' Roll ", 0
-META_HARD_ARTIST BYTE "Joan Jett & The Blackhearts", 0
-META_HARD_YEAR DWORD 1981
+META_HARD \
+	BYTE "I Love Rock 'n' Roll ", 0
+	BYTE "Joan Jett & The Blackhearts", 0
+	BYTE "1981", 0
 
 
 ; TEXTS
@@ -135,7 +141,6 @@ LQ_POINTS = 3
 
 TXT_MEDAL \
 	BYTE "HERE'S A MEDAL FOR YOU:",0
-LQ_MEDAL = 1
 
 TXT_REWARD_GOLD \
 	BYTE 201, 205, 187, 201, 205, 187, 203, "  ", 201, 203, 187, 0
@@ -155,6 +160,12 @@ TXT_FINISH \
 	BYTE " Press RETURN to go back to title screen.", 0
 LQ_FINISH = 4
 
+TXT_SIGNATURE \
+	BYTE "[= BYTES SURFER =]"
+
+TXT_PTS_NOW \
+	BYTE "POINTS:"
+
 ; BUFFERS
 LAST_STEP DWORD ?
 VSYNC BYTE 25 DUP (90 DUP (?))
@@ -166,13 +177,13 @@ BF_DEFAULT_EMPTY BYTE 22 DUP (88 DUP (" "), 13, 10), 0
 
 .code
 
-ClipText PROC USES eax ebx ecx edx, src: PTR BYTE, lines: DWORD, sx: DWORD, sy: DWORD
+ClipText PROC USES eax ebx ecx edx, src: PTR BYTE, lines: DWORD, row: DWORD, col: DWORD
 	mov ebx, src
 	mov ecx, lines
 
-	mov edx, sy
+	mov edx, row
 	imul edx, edx, 90	
-	add edx, sx
+	add edx, col
 	add edx, offset VSYNC
 	push edx
 
@@ -228,7 +239,7 @@ HelpScreen PROC USES eax edx
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
 	
-	INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 4, 2
+	INVOKE ClipText, offset TXT_INSTRUCTIONS, LQ_INSTRUCTIONS, 2, 4
 	
 	call Clrscr
 	mov edx, offset VSYNC
@@ -315,39 +326,39 @@ FinishStep:
 	ret
 PopStep ENDP
 
-Game PROC  USES eax ecx edx, level: PTR BYTE, _title: PTR BYTE, artist: PTR BYTE, year: DWORD
-	call Clrscr
-	
-	INVOKE sGotoxy, 1, 4
-	mov eax, red*16 + white
-	call SetTextColor
-	mov edx, _title
-	call WriteString
-
-	INVOKE sGotoxy, 2, 4
-	mov eax, green*16 + white
-	call SetTextColor
-	mov edx, artist
-	call WriteString
-
-	INVOKE sGotoxy, 3, 4
-	mov eax, blue*16 + white
-	call SetTextColor
-	mov eax, year
-	call WriteDec
-	
-	mov eax, black*16 + white
-	call SetTextColor
-	
+Game PROC  USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 	mov eax, level
 	mov MAIN_Q_ESI, eax
 	mov ecx, 0
+
 GameFillIn:
 	INVOKE PopStep, ecx
 	inc ecx
 	cmp ecx, 32
 	jl GameFillIn
 
+GameStaticFrame:
+	INVOKE Str_copy,
+		offset BF_DEFAULT_EMPTY,
+		offset VSYNC
+
+	INVOKE ClipText, meta, 3, 1, 4
+	INVOKE ClipText, offset GLYPH_LANE_BORDER, 1, 5, 4
+	INVOKE ClipText, offset GLYPH_LANE_BORDER, 1, 17, 4
+	INVOKE ClipText, offset GLYPH_LANE_SPLT, 1, 9, 4
+	INVOKE ClipText, offset GLYPH_LANE_SPLT, 1, 13, 4
+	INVOKE ClipText, offset GLYPH_INV_SPLT, 1, 7, 18
+	INVOKE ClipText, offset GLYPH_INV_SPLT, 1, 11, 18
+	INVOKE ClipText, offset GLYPH_INV_SPLT, 1, 15, 18
+	INVOKE ClipText, offset TXT_PTS_NOW, 1, 20, 4
+	INVOKE ClipText, offset TXT_SIGNATURE, 1, 20, 16
+
+GameDrawStaticFrame:
+	call Clrscr
+	mov edx, offset VSYNC
+	call WriteString
+
+GameFinish:
 	call ReadChar
 	
 	ret
@@ -359,9 +370,9 @@ TitleStart:
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
 	
-	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 16, 1
-	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 29, 9
-	INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 4, 16
+	INVOKE ClipText, offset TXT_LOGO, LQ_LOGO, 1, 16
+	INVOKE ClipText, offset TXT_TITLE_MIDDLE, LQ_TITLE_MIDDLE, 9, 29
+	INVOKE ClipText, offset TXT_AUTHORS, LQ_AUTHORS, 16, 4
 	
 	call Clrscr
 	mov edx, offset VSYNC
@@ -390,14 +401,14 @@ TitleWaitAction:
 	jmp TitleWaitAction
 
 TitleGoEasy:
-	INVOKE Game, offset LEVEL_EASY, offset META_EASY_TITLE, offset META_EASY_ARTIST, META_EASY_YEAR
+	INVOKE Game, offset LEVEL_EASY, offset META_EASY
 
 	;jmp PoncutationScreen
 TitleGoNormal:
-	INVOKE Game, offset LEVEL_NORMAL, offset META_NORMAL_TITLE, offset META_NORMAL_ARTIST, META_NORMAL_YEAR
+	INVOKE Game, offset LEVEL_NORMAL, offset META_NORMAL
 
 TitleGoHard:
-	INVOKE Game, offset LEVEL_HARD, offset META_HARD_TITLE, offset META_HARD_ARTIST, META_HARD_YEAR
+	INVOKE Game, offset LEVEL_HARD, offset META_HARD
 
 TitleGoHelp:
 	INVOKE HelpScreen
