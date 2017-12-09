@@ -339,7 +339,7 @@ GameDrawInventory PROC USES eax ebx edx esi
 	mov bl, 0
 DrawInventoryLane:
 	mov al, bl
-	add dl, 4
+	mov dl, 4
 	mul dl
 	add al, 7
 	INVOKE sGotoyx, al, 4
@@ -491,6 +491,7 @@ GameMainLoop:
 	INVOKE GameDrawPlayer
 	;INVOKE GameDrawLanes
 	;INVOKE GameDrawPoints
+	INVOKE sGotoyx, 25, 88
 
 GameFinish:
 	call ReadChar
