@@ -344,6 +344,8 @@ AllLanesEOG:
 	mov BYTE PTR [GAME_LANES_0+edi], L_EOG
 	mov BYTE PTR [GAME_LANES_1+edi], L_EOG
 	mov BYTE PTR [GAME_LANES_2+edi], L_EOG
+	dec esi
+	mov MAIN_Q_ESI, esi
 	ret
 
 NonEmptyRep:
@@ -579,6 +581,84 @@ GameDrawPoints PROC USES eax
 	ret
 GameDrawPoints ENDP
 
+AddInv PROC USES eax edx esi ecx, nc: BYTE
+	xor eax, eax
+	mov al, PLAYER_POS
+	mov edx, LEN_I_BRICKS
+	mul edx
+	add eax, offset PLAYER_INVENTORY
+	mov esi, eax
+	mov edi, eax
+	mov ecx, LEN_I_BRICKS
+
+InvCheckLoop:
+	lodsb
+	cmp al, I_EMPTY
+	je InvNotEmpty
+	loop InvCheckLoop
+	
+	mov PLAYER_BLOCKED_X, BLOCKED_STEPS
+	mov ecx, LEN_I_BRICKS  
+	mov al, I_EMPTY
+	
+InvEmptyLoop:
+	stosb
+	loop InvEmptyLoop
+	ret
+
+InvNotEmpty:
+	mov edi, esi
+	dec edi
+	mov al, nc
+	stosb
+	ret
+
+AddInv ENDP
+
+Step PROC USES eax ecx edx esi edi
+	mov al, PLAYER_BLOCKED_X
+	cmp al, 0
+	jne StepBlocked
+
+	xor eax, eax
+	mov al, PLAYER_POS
+	mov edx, LEN_L_BRICKS
+	mul edx
+	add eax, offset GAME_LANES
+	movzx eax, BYTE PTR [eax]
+	
+	cmp al, L_EMPTY
+	je StepProceed
+
+	cmp al, L_EOG
+	je StepEOG
+
+	INVOKE AddInv, al
+	jmp StepProceed
+
+StepEOG:
+	mov PLAYER_POS, 255
+	ret
+
+StepBlocked:
+	dec al
+	mov PLAYER_BLOCKED_X, al
+	
+StepProceed:
+	mov esi, OFFSET GAME_LANES +1
+	mov edi, OFFSET GAME_LANES
+	mov ecx, ((LENGTHOF GAME_LANES) -1)
+
+StepMoveLeftLoop:
+	lodsb
+	stosb
+	loop StepMoveLeftLoop
+	INVOKE PopStep, LEN_L_BRICKS - 1
+
+	ret
+Step ENDP
+
+
 Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 	; Inicia o ponteiro do QUEUE
 	mov eax, level
@@ -628,32 +708,37 @@ GameMainLoop:
 	cmp dx, VK_UP
 	je PlayerGoUp
 
-PosMove:
+GamePosMove:
+	INVOKE Step
 	INVOKE WaitStep
-	jmp GameMainLoop
+
+	mov al, PLAYER_POS
+	cmp al, 255
+	jne GameMainLoop
+	jmp GameFinish
 
 
 PlayerGoUp:
 	mov al, PLAYER_POS
 	cmp al, 0
 	jne MoveUp
-	jmp PosMove
+	jmp GamePosMove
 
 MoveUp:
 	dec al
 	mov PLAYER_POS, al
-	jmp PosMove
+	jmp GamePosMove
 
 PlayerGoDown:
 	mov al, PLAYER_POS
 	cmp al, LEN_Q_LANES -1
 	jne MoveDown
-	jmp PosMove
+	jmp GamePosMove
 
 MoveDown:
 	inc al
 	mov PLAYER_POS, al
-	jmp PosMove
+	jmp GamePosMove
 
 GameFinish:
 	ret
