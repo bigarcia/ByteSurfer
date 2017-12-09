@@ -78,7 +78,11 @@ GLYPH_LANE_SPLT BYTE 80 DUP (G_LANE_SPLT), 0
 GLYPH_INV_SPLT BYTE G_INV_SPLT, 0
 
 ; LEVELS
-LEVEL_EASY BYTE Q_REPEAT_X+31,Q_EOG
+LEVEL_EASY \
+	BYTE(B_GREEN), (B_YELLOW + LEN_B_COLORS), Q_NEXT
+	BYTE Q_REPEAT_X + 3
+	BYTE(B_RED + LEN_B_COLORS), (B_YELLOW + (LEN_B_COLORS * 2)), Q_NEXT
+	BYTE Q_REPEAT_X + 31, Q_EOG
 LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
@@ -555,7 +559,10 @@ LanesFinishLane:
 	ret
 GameDrawLanes ENDP
 
-GameDrawPoints PROC
+GameDrawPoints PROC USES eax
+	INVOKE sGotoyx, 20, 12
+	mov eax, PLAYER_POINTS
+	call WriteDec
 	ret
 GameDrawPoints ENDP
 
@@ -567,6 +574,7 @@ Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 
 	; Dados iniciais
 	mov PLAYER_POS, 1
+	mov PLAYER_POINTS, 0
 
 GameFillIn:
 	INVOKE PopStep, ecx
@@ -599,7 +607,7 @@ GameMainLoop:
 	INVOKE GameDrawInventory
 	INVOKE GameDrawPlayer
 	INVOKE GameDrawLanes
-	;INVOKE GameDrawPoints
+	INVOKE GameDrawPoints
 	INVOKE sGotoyx, 25, 88
 
 GameFinish:
