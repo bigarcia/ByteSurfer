@@ -356,19 +356,19 @@ DrawInventoryItem:
 	je DrawInventoryWhite
 
 	cmp al, (I_COLOR+B_PURPLE)
-	je DrawInvetoryPurple
+	je DrawInventoryPurple
 
 	cmp al, (I_COLOR+B_BLUE)
-	je DrawInvetoryBlue
+	je DrawInventoryBlue
 
 	cmp al, (I_COLOR+B_GREEN)
-	je DrawInvetoryGreen
+	je DrawInventoryGreen
 
 	cmp al, (I_COLOR+B_YELLOW)
-	je DrawInvetoryYellow
+	je DrawInventoryYellow
 
 	cmp al, (I_COLOR+B_RED)
-	je DrawInvetoryRed
+	je DrawInventoryRed
 
 DrawInventoryEmpty:
 	mov eax, white+(black*16)
@@ -382,27 +382,29 @@ DrawInventoryWhite:
 	call SetTextColor
 	jmp DrawInventoryNode
 
-DrawInvetoryPurple:
+DrawInventoryPurple:
 	mov eax, magenta+(black*16)
 	call SetTextColor
 	jmp DrawInventoryNode
 
-DrawInvetoryBlue:
+DrawInventoryBlue:
 	mov eax, blue+(black*16)
 	call SetTextColor
 	jmp DrawInventoryNode
 
-DrawInvetoryGreen:
+DrawInventoryGreen:
 	mov eax, green+(black*16)
 	call SetTextColor
 	jmp DrawInventoryNode
 
-DrawInvetoryYellow:
+DrawInventoryYellow:
 	mov eax, yellow+(black*16)
 	call SetTextColor
 	jmp DrawInventoryNode
 
-DrawInvetoryRed:
+DrawInventoryRed:
+	mov eax, red+(black*16)
+	call SetTextColor
 
 DrawInventoryNode:
 	mov al, G_INV_NODE
@@ -469,22 +471,22 @@ DrawLanesItem:
 	je DrawLanesWhite
 
 	cmp al, (L_COLOR+B_PURPLE)
-	je DrawInvetoryPurple
+	je DrawLanesPurple
 
 	cmp al, (L_COLOR+B_BLUE)
-	je DrawInvetoryBlue
+	je DrawLanesBlue
 
 	cmp al, (L_COLOR+B_GREEN)
-	je DrawInvetoryGreen
+	je DrawLanesGreen
 
 	cmp al, (L_COLOR+B_YELLOW)
-	je DrawInvetoryYellow
+	je DrawLanesYellow
 
 	cmp al, (L_COLOR+B_RED)
-	je DrawInvetoryRed
+	je DrawLanesRed
 
 	cmp al, (L_EOG)
-	je DrawInventoryEOG
+	je DrawLanesEOG
 
 DrawLanesEmpty:
 	mov eax, white+(black*16)
@@ -493,7 +495,7 @@ DrawLanesEmpty:
 	call WriteChar
 	jmp LanesFinishItem
 
-DrawInventoryEOG:
+DrawLanesEOG:
 	mov eax, white+(black*16)
 	call SetTextColor
 	mov al, G_LANE_EOG
@@ -505,27 +507,29 @@ DrawLanesWhite:
 	call SetTextColor
 	jmp DrawLanesNode
 
-DrawInvetoryPurple:
+DrawLanesPurple:
 	mov eax, magenta+(black*16)
 	call SetTextColor
 	jmp DrawLanesNode
 
-DrawInvetoryBlue:
+DrawLanesBlue:
 	mov eax, blue+(black*16)
 	call SetTextColor
 	jmp DrawLanesNode
 
-DrawInvetoryGreen:
+DrawLanesGreen:
 	mov eax, green+(black*16)
 	call SetTextColor
 	jmp DrawLanesNode
 
-DrawInvetoryYellow:
+DrawLanesYellow:
 	mov eax, yellow+(black*16)
 	call SetTextColor
 	jmp DrawLanesNode
 
-DrawInvetoryRed:
+DrawLanesRed:
+	mov eax, red+(black*16)
+	call SetTextColor
 
 DrawLanesNode:
 	mov al, G_LANE_NODE
@@ -663,7 +667,7 @@ main PROC
 	mov LAST_STEP, eax
 
 	; First screen
-	INVOKE TitleScreen
+	INVOKE Game, offset LEVEL_EASY, offset META_EASY
 
 	; Bye
 	exit
