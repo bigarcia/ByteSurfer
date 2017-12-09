@@ -3,11 +3,11 @@ INCLUDE ..\Irvine32.inc
 .data
 
 ; PONCUTATIONS
-P_PURPLE = 10
-P_BLUE = 20
-P_GREEN = 30
-P_YELLOW = 50
-P_RED = 80
+P_PURPLE DWORD 10
+P_BLUE DWORD 20
+P_GREEN DWORD 30
+P_YELLOW DWORD 50
+P_RED DWORD 80
 MEDAL_GOLD = 90
 MEDAL_SILVER = 55
 MEDAL_BRONZE = 20
@@ -58,6 +58,7 @@ GAME_LANES BYTE LEN_Q_LANES DUP (LEN_L_BRICKS DUP (L_EOG)) ; WHAT WE HAVE QUEUED
 GAME_LANES_0 = offset GAME_LANES
 GAME_LANES_1 = (offset GAME_LANES + LEN_L_BRICKS)
 GAME_LANES_2 = (offset GAME_LANES + (LEN_L_BRICKS * 2))
+MATCH_COUNTER DWORD 0;
 
 ; GLYPHS
 G_INV_EMPTY = 176
@@ -743,6 +744,208 @@ RewardFinish:
 
 MedalScreen ENDP
 
+InventoryElem PROC USES edx, sy: BYTE, sx: BYTE ; RETURNS: EAX
+	xor eax, eax
+	mov al, sy
+	mov dl, LEN_I_BRICKS
+	mul dl
+	add eax, offset PLAYER_INVENTORY
+	add al, sx
+	ret
+InventoryElem ENDP
+
+ThreeMatchSearcher PROC USES esi eax ebx edx, sy: BYTE, sx: BYTE, me: PTR BYTE
+	; All the credits for this proc goes to Bianca
+	mov esi, me
+
+	movzx eax, BYTE PTR [esi]
+	mov dl, al
+	and dl, 00001111b ; CHECK IF NEEDED IN POS-PRODUCTION
+
+	or al, 01000000b ; MARK AS PROCESS(ING|ED)
+	mov BYTE PTR[esi], al
+
+CompareLeft:
+	cmp sx, 0
+	je CompareUp
+
+	movzx eax, BYTE PTR [esi - 1]
+	cmp al, dl
+	jne CompareUp
+
+	mov al, sx
+	dec al
+	dec esi
+	INVOKE ThreeMatchSearcher, sy, al, esi
+	inc esi
+
+CompareUp:
+	cmp sy, 0
+	je CompareRight
+
+	movzx eax, BYTE PTR [esi - LEN_I_BRICKS]
+	cmp al, dl
+	jne CompareRight
+
+	mov bl, sy
+	dec bl
+	sub esi, LEN_I_BRICKS
+	INVOKE ThreeMatchSearcher, bl, sx, esi
+	add esi, LEN_I_BRICKS
+
+CompareRight:
+	cmp sx, LEN_I_BRICKS-1
+	je CompareDown
+
+	movzx eax, BYTE PTR [esi + 1]
+	cmp al, dl
+	jne CompareDown
+
+	mov bl, sx
+	inc bl
+	inc esi
+	INVOKE ThreeMatchSearcher, sy, bl, esi
+	dec esi
+
+CompareDown:
+	cmp sy, LEN_Q_LANES-1
+	je EndComparison
+
+	movzx eax, BYTE PTR [esi + LEN_I_BRICKS]
+	cmp al, dl
+	jne EndComparison
+
+	mov bl, sy
+	inc bl
+	add esi, LEN_I_BRICKS
+	INVOKE ThreeMatchSearcher, bl, sx, esi
+	sub esi, LEN_I_BRICKS
+
+EndComparison:
+	mov al, dl
+	or al, 11000000b ; MARK AS TO CANDIDATE TO REMOVE
+	mov BYTE PTR[esi], al
+	
+	mov eax, MATCH_COUNTER
+	inc eax
+	mov MATCH_COUNTER, eax
+
+	ret
+ThreeMatchSearcher ENDP
+
+InventoryRemark PROC USES eax ecx esi edi, brick: BYTE
+	mov esi, OFFSET PLAYER_INVENTORY
+	mov edi, OFFSET PLAYER_INVENTORY
+	mov ecx, LENGTHOF PLAYER_INVENTORY
+
+	cmp MATCH_COUNTER, 3
+	jl UndoAll
+
+	xor eax, eax
+	mov al, brick
+	sub al, I_COLOR
+	add eax, offset P_PURPLE
+	movzx eax, BYTE PTR[eax]
+	mov edx, MATCH_COUNTER
+	mul eax
+	add eax, PLAYER_POINTS
+	mov PLAYER_POINTS, eax
+
+WhenMatchItem:
+	lodsb
+	and al, 10000000b
+	cmp al, 10000000b
+	je MarkToRemove
+	jmp Ignore
+
+MarkToRemove:
+	mov al, I_REMOVING
+	stosb
+	loop WhenMatchItem
+	jmp Finish
+
+Ignore:
+	inc edi
+	loop WhenMatchItem
+	jmp Finish
+
+UndoAll:
+	lodsb
+	and al, 00111111b
+	stosb
+
+Finish:
+	ret
+InventoryRemark ENDP
+
+InventoryClean PROC
+	mov ebx, 0
+PerLane:
+	INVOKE InventoryElem, bh, 0
+	mov esi, eax
+	mov edi, eax
+	mov ecx, LEN_I_BRICKS
+
+PerItem:
+	lodsb
+	cmp al, I_REMOVING
+	je FinishItem
+	stosb
+
+FinishItem:
+	loop PerItem
+
+	mov al, I_EMPTY
+	cmp esi, edi
+	je FillTail
+	jmp Finish
+
+FillTail:
+	stosb
+	cmp esi, edi
+	je FillTail
+
+Finish:
+	ret
+InventoryClean ENDP
+
+ThreeMatchSearch PROC USES eax ebx ecx
+	xor bx, bx
+NextElem:
+	INVOKE InventoryElem, bh, bl
+	movzx ecx, BYTE PTR [esi]
+
+	cmp cl, I_EMPTY
+	je FinishLine
+
+	cmp cl, I_REMOVING
+	je FinishElem
+
+	mov MATCH_COUNTER, 0
+	INVOKE ThreeMatchSearcher, bh, bl, eax
+	INVOKE InventoryRemark, cl
+
+FinishElem:
+	inc bl
+
+	cmp bl, LEN_I_BRICKS
+	je FinishLine
+
+	jmp NextElem
+
+FinishLine:
+	inc bh
+
+	cmp bh, LEN_Q_LANES
+	je Finish
+
+	mov bl, 0
+	jmp NextElem
+
+Finish:
+	INVOKE InventoryClean
+	ret
+ThreeMatchSearch ENDP
 
 Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE
 	; Inicia o ponteiro do QUEUE
@@ -921,8 +1124,6 @@ main PROC
 	INVOKE HideCursor
 
 	; First screen
-	mov PLAYER_POINTS, 3000
-	INVOKE MedalScreen, PTS_TOTAL_EASY
 	INVOKE TitleScreen
 
 	; Bye
