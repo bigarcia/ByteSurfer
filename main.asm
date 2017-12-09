@@ -1,5 +1,10 @@
 INCLUDE ..\Irvine32.inc
 
+PlaySound PROTO,
+        pszSound:PTR BYTE, 
+        hmod:DWORD, 
+        fdwSound:DWORD
+
 .data
 
 ; PONCUTATIONS
@@ -220,6 +225,16 @@ BF_DEFAULT_EMPTY BYTE 22 DUP (88 DUP (" "), 13, 10), 0
 ; CURSOR HACKS
 CCI CONSOLE_CURSOR_INFO <>
 CHAND DD ?
+
+; MUSIC HACKS
+BGMContext BYTE "BGMContext",0
+SEContext BYTE "SEContext",0
+
+SND_ALIAS = 010000h
+SND_APPLICATION = 80h
+SND_FILENAME = 020000h
+SND_NOSTOP = 01h
+SND_LOOP = 08h
 
 .code
 
@@ -1033,7 +1048,11 @@ GameFinish:
 Game ENDP
 
 TitleScreen PROC USES eax edx
-TitleStart: 
+TitleStart:
+	; Initialize sound context
+	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
+	INVOKE PlaySound, OFFSET MUSIC_TITLE, NULL, SND_FILENAME + SND_LOOP
+
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
 		offset VSYNC
@@ -1047,7 +1066,6 @@ TitleStart:
 	call WriteString
 
 TitleWaitAction:
-
 	call ReadKey
 	
 	cmp dx, VK_ESCAPE
