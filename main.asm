@@ -368,6 +368,8 @@ DrawInventoryItem:
 	je DrawInvetoryRed
 
 DrawInventoryEmpty:
+	mov eax, white+(black*16)
+	call SetTextColor
 	mov al, G_INV_EMPTY
 	call WriteChar
 	jmp InventoryFinishItem
@@ -415,6 +417,9 @@ InventoryFinishLane:
 	inc bl
 	cmp bl, LEN_Q_LANES
 	jl DrawInventoryLane
+
+	mov eax, white+(black*16)
+	call SetTextColor
 
 	ret
 GameDrawInventory ENDP
