@@ -79,9 +79,8 @@ TXT_PTS_1 \
 TXT_FINISH \
 	BYTE "WANNA TRY AGAIN?", 0
 	BYTE " Press ESC to quit.", 0
-	BYTE " Press SPACE to replay.", 0
-	BYTE " Press RETURN to go back to title screen.", 0
-LQ_FINISH = 4
+	BYTE " Press RETURN to go back to main menu.", 0
+LQ_FINISH = 3
 
 TXT_SIGNATURE \
 	BYTE "[> BYTES SURFER <]",0

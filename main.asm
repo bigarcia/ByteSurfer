@@ -240,8 +240,8 @@ HelpScreen PROC USES eax edx
 	call Clrscr
 	mov edx, offset VSYNC
 	call WriteString
+
 	call ReadChar
-	
 	ret
 HelpScreen ENDP
 
@@ -625,7 +625,7 @@ MedalScreen PROC USES eax edx, total: DWORD
 	INVOKE ClipText, offset TXT_POINTS, LQ_POINTS, 3, 23 
 	INVOKE ClipText, offset TXT_MEDAL, 1, 7, 33  
 	INVOKE ClipText, offset TXT_PTS_0, 1, 14, 36 
-	INVOKE ClipText, offset TXT_FINISH, LQ_FINISH, 16, 3  
+	INVOKE ClipText, offset TXT_FINISH, LQ_FINISH, 17, 3  
 
 	mov eax, total 
 	mov edx, MEDAL_GOLD 
@@ -671,9 +671,21 @@ RewardFinish:
 	mov edx, offset TXT_PTS_1
 	call WriteString
 
+WaitAction:
+	INVOKE WaitStep
 	call ReadChar
-	ret
 
+	cmp al, VK_ESCAPE
+	je Quit
+
+	cmp al, VK_RETURN
+	je Finish
+
+	jmp WaitAction
+Quit:
+	exit
+Finish:
+	ret
 MedalScreen ENDP
 
 InventoryElem PROC USES edx, sy: BYTE, sx: BYTE ; RETURNS: EAX
@@ -996,6 +1008,7 @@ Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE, music: PTR BYTE
 	; Dados iniciais
 	mov PLAYER_POS, 1
 	mov PLAYER_POINTS, 0
+	mov PLAYER_BLOCKED_X, 0
 
 	mov edi, offset PLAYER_INVENTORY
 	mov ecx, LENGTHOF PLAYER_INVENTORY
@@ -1048,6 +1061,8 @@ GameMainLoop:
 	je PlayerGoDown
 	cmp dx, VK_UP
 	je PlayerGoUp
+	cmp dx, VK_ESCAPE
+	je GameFinish
 
 GamePosMove:
 	INVOKE Step
@@ -1118,7 +1133,7 @@ TitleWaitAction:
 	cmp dx, 32h
 	je TitleGoNormal
 
-	cmp dx, 31h
+	cmp dx, 33h
 	je TitleGoHard
 
 	INVOKE WaitStep
