@@ -946,10 +946,9 @@ InvNotFull:
 	mov al, nc
 	stosb
 	ret
+AddInv ENDP
 
-	AddInv ENDP
-
-	Step PROC USES eax ecx edx esi edi
+Step PROC USES eax ecx edx esi edi
 	inc PLAYER_MATCH_WAIT
 
 	mov eax, PLAYER_BLOCKED_X
@@ -1025,7 +1024,7 @@ GameFillIn:
 	jl GameFillIn
 
 	; Inicia música
-	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
+	;INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
 	INVOKE PlaySound, music, NULL, SND_FILENAME + SND_NOSTOP
 
 GameStaticFrame:
@@ -1103,7 +1102,7 @@ Game ENDP
 TitleScreen PROC USES eax edx
 TitleStart:
 	; Initialize sound context
-	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
+	;INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
 	INVOKE PlaySound, OFFSET MUSIC_TITLE, NULL, SND_FILENAME + SND_LOOP + SND_NOSTOP
 
 	INVOKE Str_copy,
@@ -1162,7 +1161,7 @@ TitleFinish:
 TitleScreen ENDP
 
 CaptureLevel PROC USES eax, music: PTR BYTE
-	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
+	;INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
 	INVOKE PlaySound, music, NULL, SND_FILENAME + SND_NOSTOP
 
 CaptureLevelLoop:
