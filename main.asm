@@ -98,9 +98,9 @@ LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
 ; MUSIC FILES
 MUSIC_TITLE BYTE "menu.wav", 0
-MUSIC_EASY BYTE "easy.mp3", 0
-MUSIC_NORMAL BYTE "normal.mp3", 0
-MUSIC_HARD BYTE "hard.mp3", 0
+MUSIC_EASY BYTE "easy.wav", 0
+MUSIC_NORMAL BYTE "normal.wav", 0
+MUSIC_HARD BYTE "hard.wav", 0
 
 ; METAS
 META_EASY \
@@ -1110,7 +1110,10 @@ TitleFinish:
 	ret
 TitleScreen ENDP
 
-CaptureLevel PROC USES eax	
+CaptureLevel PROC USES eax, music: PTR BYTE
+	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
+	INVOKE PlaySound, music, NULL, SND_FILENAME + SND_LOOP + SND_NOSTOP
+
 CaptureLevelLoop:
 	INVOKE WaitStep
 	call ReadKey
@@ -1118,8 +1121,8 @@ CaptureLevelLoop:
 	cmp al, VK_ESCAPE
 	jz CaptureLevelFinish
 
-	cmp al, 0
-	jnz HaveBrick
+	cmp al, VK_SPACE
+	jz HaveBrick
 
 	mov eax, 0
 	call WriteDec
@@ -1141,11 +1144,10 @@ main PROC
 	mov LAST_STEP, eax
 
 	; Get rid of CURSOR
-	INVOKE HideCursor
 
 	; First screen
 	INVOKE TitleScreen
-
+	
 	; Bye
 	exit
 main ENDP
