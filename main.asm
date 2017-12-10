@@ -9,11 +9,12 @@ PlaySound PROTO,
 .data
 
 ; PONCUTATIONS
-P_PURPLE DWORD 10
-P_BLUE DWORD 20
-P_GREEN DWORD 30
-P_YELLOW DWORD 50
-P_RED DWORD 80
+P_WHITE BYTE 1
+P_PURPLE BYTE 10
+P_BLUE BYTE 20
+P_GREEN BYTE 30
+P_YELLOW BYTE 50
+P_RED BYTE 80
 MEDAL_GOLD = 90
 MEDAL_SILVER = 55
 MEDAL_BRONZE = 20
@@ -31,8 +32,8 @@ LEN_Q_LANES = 3 ; LANES NUMBER
 LEN_B_COLORS = B_RED+1 ; BRICK COLORS NUMBER
 LEN_I_BRICKS = 7 ; BRICKS PER INVENTORY
 LEN_L_BRICKS = 29 ; BRICKS PER LANE
-MAIN_TIME_STEP = 40; OUR DELAY TIME BETWEEN STEPS (miliseconds)
-BLOCKED_STEPS = 10 ; STEPS THE PLAYER WILL BE BLOCKED WHEN OVERFLOWED
+MAIN_TIME_STEP = 1000/25; OUR DELAY TIME BETWEEN STEPS (miliseconds)
+BLOCKED_STEPS = 10000/MAIN_TIME_STEP ; STEPS THE PLAYER WILL BE BLOCKED WHEN OVERFLOWED
 
 ; Enum: QueueElem
 Q_BRICK = 0 ; LANE * Brick
@@ -54,17 +55,21 @@ L_COLOR = 2
 PLAYER_POS BYTE ? ; WHICH LANE (0..LEN_Q_LANES)
 MAIN_Q_ESI DWORD offset LEVEL_EASY ; CURRENT LEVEL QUEUE + INDEX
 MAIN_Q_REPEAT_COUNTER BYTE 0 ; EMPTY STEPS LEFT COUNTER
-PLAYER_BLOCKED_X BYTE 0 ; HOW MANY STEPS PLAYER WILL CONTINUE BLOCKED
+PLAYER_BLOCKED_X DWORD 0 ; HOW MANY STEPS PLAYER WILL CONTINUE BLOCKED
 PLAYER_INVENTORY BYTE LEN_Q_LANES DUP (LEN_I_BRICKS DUP (I_EMPTY)) ; IVENTORY ON EACH LANE
 PLAYER_INVENTORY_0 = offset PLAYER_INVENTORY
 PLAYER_INVENTORY_1 = (offset PLAYER_INVENTORY + 7)
 PLAYER_INVENTORY_2 = (offset PLAYER_INVENTORY + 14)
 PLAYER_POINTS DWORD 0 ; PONCUTATION ACCUMULATOR
+PLAYER_MATCH_WAIT DWORD ?;
 GAME_LANES BYTE LEN_Q_LANES DUP (LEN_L_BRICKS DUP (L_EOG)) ; WHAT WE HAVE QUEUED ON EACH LANE
 GAME_LANES_0 = offset GAME_LANES
 GAME_LANES_1 = (offset GAME_LANES + LEN_L_BRICKS)
 GAME_LANES_2 = (offset GAME_LANES + (LEN_L_BRICKS * 2))
-MATCH_COUNTER DWORD 0;
+MATCH_COUNTER DWORD ?
+DEBUG_NEXTSEC DWORD ?
+DEBUG_LASTFPS DWORD ?
+DEBUG_FRAME DWORD 0
 
 ; GLYPHS
 G_INV_EMPTY = 176
@@ -82,6 +87,8 @@ GLYPH_PLAYER_EMPTY \
 	BYTE 4 DUP (" "), 0
 GLYPH_PLAYER \
 	BYTE 3 DUP (178), 254, 0
+GLYPH_PLAYER_BLOCKED \
+	BYTE 3 DUP ("X"), ">", 0
 
 GLYPH_LANE_BORDER BYTE 80 DUP (G_LANE_BORDER), 0
 GLYPH_LANE_SPLT BYTE 80 DUP (G_LANE_SPLT), 0
@@ -730,7 +737,7 @@ LEVEL_EASY \
     BYTE Q_REPEAT_X + 22, (B_RED + LEN_B_COLORS * 0), Q_NEXT
     BYTE Q_REPEAT_X + 2, (B_RED + LEN_B_COLORS * 1), Q_NEXT
     BYTE Q_EOG
-LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
+LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG, Q_EOG, Q_EOG, Q_EOG
 LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
 ; MUSIC FILES
@@ -836,7 +843,6 @@ TXT_PTS_0 \
 
 TXT_PTS_1 \
 	BYTE " PTS.", 0
-
              
 TXT_FINISH \
 	BYTE "WANNA TRY AGAIN?", 0
@@ -846,10 +852,15 @@ TXT_FINISH \
 LQ_FINISH = 4
 
 TXT_SIGNATURE \
-	BYTE "[= BYTES SURFER =]",0
+	BYTE "[> BYTES SURFER <]",0
 
 TXT_PTS_NOW \
 	BYTE "POINTS:",0
+
+TXT_DEBUG_BLOCKED BYTE "BLOCK: ",0
+TXT_DEBUG_FPS BYTE "FPS: ",0
+TXT_DEBUG_MATCH_CTR BYTE "MATCH CTR: ", 0
+TXT_DEBUG_NEXT_EMPTY BYTE "EPTY RPT: ", 0
 
 ; BUFFERS
 LAST_STEP DWORD ?
@@ -918,6 +929,7 @@ ClipTextFinish:
 ClipText ENDP
 
 WaitStep PROC USES eax ebx
+	inc DEBUG_FRAME
 	mov ebx, MAIN_TIME_STEP
 
 	; Get elapsed time
@@ -939,6 +951,16 @@ JumpSleep:
 	call GetMseconds
 	mov LAST_STEP, eax
 
+	cmp eax, DEBUG_NEXTSEC
+	jl Finish
+
+	add eax, 1000
+	mov DEBUG_NEXTSEC, eax
+	mov eax, DEBUG_FRAME
+	mov DEBUG_LASTFPS, eax
+	mov DEBUG_FRAME, 0
+
+Finish:
 	ret
 WaitStep ENDP
 
@@ -983,20 +1005,20 @@ GrabFromQueue:
 	mov MAIN_Q_ESI, esi
 
 	; O que fazer?
-	cmp al, B_RED
-	jle FirstLaneBrick
+	cmp al, Q_EOG
+	je AllLanesEOG
+
+	cmp al, Q_NEXT
+	je FinishStep
+
+	cmp al, LEN_B_COLORS
+	jl FirstLaneBrick
 
 	cmp al, (LEN_B_COLORS*2)
 	jl SecondLaneBrick
 
 	cmp al, (LEN_B_COLORS*3)
 	jl ThirdLaneBrick
-
-	cmp al, Q_NEXT
-	je FinishStep
-
-	cmp al, Q_EOG
-	je AllLanesEOG
 
 StartRepetition:
 	sub al, (Q_REPEAT_X-1)
@@ -1052,6 +1074,12 @@ DrawInventoryItem:
 	movzx eax, BYTE PTR [PLAYER_INVENTORY_0+esi]
 	inc esi
 
+	cmp al, I_EMPTY
+	je DrawInventoryEmpty
+
+	cmp al, I_REMOVING ; BUGS HAPPENS
+	je DrawInventoryRemoving
+
 	cmp al, (I_COLOR+B_WHITE)
 	je DrawInventoryWhite
 
@@ -1069,6 +1097,17 @@ DrawInventoryItem:
 
 	cmp al, (I_COLOR+B_RED)
 	je DrawInventoryRed
+
+DrawInventoryUnknow:
+	call WriteChar
+	jmp InventoryFinishItem
+
+DrawInventoryRemoving:
+	mov eax, white+(black*16)
+	call SetTextColor
+	mov al, 'R'
+	call WriteChar
+	jmp InventoryFinishItem
 
 DrawInventoryEmpty:
 	mov eax, white+(black*16)
@@ -1146,9 +1185,18 @@ GameDrawPlayer PROC USES eax edx
 	add al, 7
 
 	INVOKE sGotoyx, al, 20
+
+	mov eax, PLAYER_BLOCKED_X
+	cmp eax, 0
+	jg DrawBlockedPlayer
+
 	mov edx, offset GLYPH_PLAYER
 	call WriteString
+	ret
 
+DrawBlockedPlayer:
+	mov edx, offset GLYPH_PLAYER_BLOCKED
+	call WriteString
 	ret
 GameDrawPlayer ENDP
 
@@ -1261,82 +1309,47 @@ GameDrawPoints PROC USES eax
 	ret
 GameDrawPoints ENDP
 
-AddInv PROC USES eax edx esi ecx, nc: BYTE
-	xor eax, eax
-	mov al, PLAYER_POS
-	mov edx, LEN_I_BRICKS
-	mul edx
-	add eax, offset PLAYER_INVENTORY
-	mov esi, eax
-	mov edi, eax
-	mov ecx, LEN_I_BRICKS
-
-InvCheckLoop:
-	lodsb
-	cmp al, I_EMPTY
-	je InvNotEmpty
-	loop InvCheckLoop
+GameDrawDebug PROC USES eax
+	INVOKE sGotoyx, 26, 0
 	
-	mov PLAYER_BLOCKED_X, BLOCKED_STEPS
-	mov ecx, LEN_I_BRICKS  
-	mov al, I_EMPTY
-	
-InvEmptyLoop:
-	stosb
-	loop InvEmptyLoop
-	ret
+	mov edx, offset TXT_DEBUG_BLOCKED
+	call WriteString
 
-InvNotEmpty:
-	mov edi, esi
-	dec edi
-	mov al, nc
-	stosb
-	ret
+	mov eax, PLAYER_BLOCKED_X
+	call WriteDec
 
-AddInv ENDP
+	mov al, ' '
+	call WriteChar
 
-Step PROC USES eax ecx edx esi edi
-	mov al, PLAYER_BLOCKED_X
-	cmp al, 0
-	jne StepBlocked
+	mov edx, offset TXT_DEBUG_FPS
+	call WriteString
+
+	mov eax, DEBUG_LASTFPS
+	call WriteDec
+
+	mov al, ' '
+	call WriteChar
+
+	mov edx, offset TXT_DEBUG_MATCH_CTR
+	call WriteString
+
+	mov eax, PLAYER_MATCH_WAIT
+	call WriteDec
+
+	mov al, ' '
+	call WriteChar
+
+	mov edx, offset TXT_DEBUG_NEXT_EMPTY
+	call WriteString
 
 	xor eax, eax
-	mov al, PLAYER_POS
-	mov edx, LEN_L_BRICKS
-	mul edx
-	add eax, offset GAME_LANES
-	movzx eax, BYTE PTR [eax]
-	
-	cmp al, L_EMPTY
-	je StepProceed
+	mov al, MAIN_Q_REPEAT_COUNTER
+	call WriteDec
 
-	cmp al, L_EOG
-	je StepEOG
-
-	INVOKE AddInv, al
-	jmp StepProceed
-
-StepEOG:
-	mov PLAYER_POS, 255
+	mov al, ' '
+	call WriteChar
 	ret
-
-StepBlocked:
-	dec al
-	mov PLAYER_BLOCKED_X, al
-	
-StepProceed:
-	mov esi, OFFSET GAME_LANES +1
-	mov edi, OFFSET GAME_LANES
-	mov ecx, ((LENGTHOF GAME_LANES) -1)
-
-StepMoveLeftLoop:
-	lodsb
-	stosb
-	loop StepMoveLeftLoop
-	INVOKE PopStep, LEN_L_BRICKS - 1
-
-	ret
-Step ENDP
+GameDrawDebug ENDP
 
 MedalScreen PROC USES eax edx, total: DWORD
 	INVOKE Str_copy,
@@ -1407,13 +1420,13 @@ InventoryElem PROC USES edx, sy: BYTE, sx: BYTE ; RETURNS: EAX
 	ret
 InventoryElem ENDP
 
-ThreeMatchSearcher PROC USES esi eax ebx edx, sy: BYTE, sx: BYTE, me: PTR BYTE
+ThreeMatchSearcher PROC USES esi eax ecx ebx edx, sy: BYTE, sx: BYTE, me: PTR BYTE
 	; All the credits for this proc goes to Bianca
 	mov esi, me
 
 	movzx eax, BYTE PTR [esi]
 	mov dl, al
-	and dl, 00001111b ; CHECK IF NEEDED IN POS-PRODUCTION
+	and dl, 00111111b
 
 	or al, 01000000b ; MARK AS PROCESS(ING|ED)
 	mov BYTE PTR[esi], al
@@ -1494,13 +1507,15 @@ InventoryRemark PROC USES eax ecx esi edi, brick: BYTE
 	cmp MATCH_COUNTER, 3
 	jl UndoAll
 
+	; Calculates points earned
+	; PLAYER_POINTS <- [brick - I_COLOR + offset P_WHITE] * MATCH_COUNTER + PLAYER_POINTS
 	xor eax, eax
 	mov al, brick
 	sub al, I_COLOR
-	add eax, offset P_PURPLE
+	add eax, offset P_WHITE
 	movzx eax, BYTE PTR[eax]
 	mov edx, MATCH_COUNTER
-	mul eax
+	mul edx
 	add eax, PLAYER_POINTS
 	mov PLAYER_POINTS, eax
 
@@ -1508,7 +1523,7 @@ WhenMatchItem:
 	lodsb
 	and al, 10000000b
 	cmp al, 10000000b
-	je MarkToRemove
+	jz MarkToRemove
 	jmp Ignore
 
 MarkToRemove:
@@ -1526,12 +1541,13 @@ UndoAll:
 	lodsb
 	and al, 00111111b
 	stosb
+	loop UndoAll
 
 Finish:
 	ret
 InventoryRemark ENDP
 
-InventoryClean PROC
+InventoryClean PROC USES ebx esi edi ecx eax
 	mov ebx, 0
 PerLane:
 	INVOKE InventoryElem, bh, 0
@@ -1548,30 +1564,38 @@ PerItem:
 FinishItem:
 	loop PerItem
 
-	mov al, I_EMPTY
 	cmp esi, edi
-	je FillTail
-	jmp Finish
+	jne FillTail
+	jmp FinishLine
 
 FillTail:
+	mov al, I_EMPTY
 	stosb
 	cmp esi, edi
-	je FillTail
+	jne FillTail
 
-Finish:
+FinishLine:
+	inc bh
+	cmp bh, LEN_Q_LANES
+	jl PerLane
+
 	ret
 InventoryClean ENDP
 
 ThreeMatchSearch PROC USES eax ebx ecx
-	xor bx, bx
+	xor ebx, ebx
 NextElem:
 	INVOKE InventoryElem, bh, bl
-	movzx ecx, BYTE PTR [esi]
+	movzx ecx, BYTE PTR [eax]
+	and cl, 00111111b
 
 	cmp cl, I_EMPTY
 	je FinishLine
 
 	cmp cl, I_REMOVING
+	je FinishElem
+
+	cmp cl, (I_COLOR + B_WHITE)
 	je FinishElem
 
 	mov MATCH_COUNTER, 0
@@ -1600,6 +1624,103 @@ Finish:
 	ret
 ThreeMatchSearch ENDP
 
+AddInv PROC USES eax ebx edx esi ecx, nc: BYTE
+	mov PLAYER_MATCH_WAIT, 0
+
+	mov bl, 0
+	xor eax, eax
+	mov al, PLAYER_POS
+	mov edx, LEN_I_BRICKS
+	mul edx
+	add eax, offset PLAYER_INVENTORY
+	mov esi, eax
+	mov edi, eax
+	mov ecx, LEN_I_BRICKS
+
+InvCheckLoop:
+	lodsb
+	cmp al, I_EMPTY
+	je InvNotFull
+	loop InvCheckLoop
+
+	; CHECK MATCHES THEN CHECK (DO ONCE)
+	cmp bl, 0
+	jne InvFull
+	INVOKE ThreeMatchSearch
+	mov esi, edi
+	mov ecx, LEN_I_BRICKS
+	mov bl, 1
+	jmp InvCheckLoop
+
+InvFull:
+	mov PLAYER_BLOCKED_X, BLOCKED_STEPS
+	mov ecx, LEN_I_BRICKS  
+	mov al, I_EMPTY
+	
+InvEmptyLoop:
+	stosb
+	loop InvEmptyLoop
+	ret
+
+InvNotFull:
+	mov edi, esi
+	dec edi
+	mov al, nc
+	stosb
+	ret
+
+	AddInv ENDP
+
+	Step PROC USES eax ecx edx esi edi
+	inc PLAYER_MATCH_WAIT
+
+	mov eax, PLAYER_BLOCKED_X
+	cmp eax, 0
+	jne StepBlocked
+
+	xor eax, eax
+	mov al, PLAYER_POS
+	mov edx, LEN_L_BRICKS
+	mul edx
+	add eax, offset GAME_LANES
+	movzx eax, BYTE PTR[eax]
+
+	cmp al, L_EMPTY
+	je StepProceed
+
+	cmp al, L_EOG
+	je StepEOG
+
+	INVOKE AddInv, al
+	jmp StepProceed
+
+StepEOG :
+	mov PLAYER_POS, 255
+	ret
+
+StepBlocked :
+	dec eax
+	mov PLAYER_BLOCKED_X, eax
+
+StepProceed :
+	mov esi, OFFSET GAME_LANES + 1
+	mov edi, OFFSET GAME_LANES
+	mov ecx, ((LENGTHOF GAME_LANES) - 1)
+
+StepMoveLeftLoop :
+	lodsb
+	stosb
+	loop StepMoveLeftLoop
+	INVOKE PopStep, LEN_L_BRICKS - 1
+
+	cmp PLAYER_MATCH_WAIT, 50
+	jl SkipMatch
+	mov PLAYER_MATCH_WAIT, 0
+	INVOKE ThreeMatchSearch
+SkipMatch:
+	ret
+Step ENDP
+
 Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE, music: PTR BYTE
 	; Inicia o ponteiro do QUEUE
 	mov eax, level
@@ -1610,6 +1731,13 @@ Game PROC USES eax ecx edx, level: PTR BYTE, meta: PTR BYTE, music: PTR BYTE
 	mov PLAYER_POS, 1
 	mov PLAYER_POINTS, 0
 
+	mov edi, offset PLAYER_INVENTORY
+	mov ecx, LENGTHOF PLAYER_INVENTORY
+IventoryReset:
+	mov eax, I_EMPTY
+	stosb
+	loop IventoryReset
+	
 GameFillIn:
 	; Inicia lanes
 	INVOKE PopStep, ecx
@@ -1647,6 +1775,7 @@ GameMainLoop:
 	INVOKE GameDrawPlayer
 	INVOKE GameDrawLanes
 	INVOKE GameDrawPoints
+	INVOKE GameDrawDebug
 	
 	call ReadKey
 	cmp dx, VK_DOWN
@@ -1657,7 +1786,6 @@ GameMainLoop:
 GamePosMove:
 	INVOKE Step
 	INVOKE WaitStep
-	INVOKE ThreeMatchSearch
 
 	mov al, PLAYER_POS
 	cmp al, 255
@@ -1777,18 +1905,22 @@ HaveBrick:
 
 CaptureLevelFinish:	 
 	call ReadChar
-	ret
-CaptureLevel ENDP
+		ret
+		CaptureLevel ENDP
 
-main PROC
-	; Starts frame-sync timer
-	call GetMseconds
-	mov LAST_STEP, eax
+		main PROC
+		; Starts frame - sync timer
+		call GetMseconds
+		mov LAST_STEP, eax
+		add eax, 1000
+		mov DEBUG_NEXTSEC, eax
 
-	; Get rid of CURSOR
+		; Get rid of CURSOR
+		INVOKE HideCursor
 
-	; First screen
-	INVOKE TitleScreen
+		; First screen
+		INVOKE TitleScreen
+		; INVOKE Game, offset LEVEL_EASY, offset META_EASY, offset MUSIC_EASY
 	
 	; Bye
 	exit
