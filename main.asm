@@ -1,4 +1,5 @@
 INCLUDE ..\Irvine32.inc
+INCLUDELIB Winmm.lib
 
 PlaySound PROTO,
         pszSound:PTR BYTE, 
@@ -96,7 +97,7 @@ LEVEL_NORMAL BYTE Q_REPEAT_X+31,Q_EOG
 LEVEL_HARD BYTE Q_REPEAT_X+31,Q_EOG
 
 ; MUSIC FILES
-MUSIC_TITLE BYTE "title.mp3", 0
+MUSIC_TITLE BYTE "menu.wav", 0
 MUSIC_EASY BYTE "easy.mp3", 0
 MUSIC_NORMAL BYTE "normal.mp3", 0
 MUSIC_HARD BYTE "hard.mp3", 0
@@ -1004,7 +1005,7 @@ GameMainLoop:
 	INVOKE GameDrawPlayer
 	INVOKE GameDrawLanes
 	INVOKE GameDrawPoints
-
+	
 	call ReadKey
 	cmp dx, VK_DOWN
 	je PlayerGoDown
@@ -1014,6 +1015,7 @@ GameMainLoop:
 GamePosMove:
 	INVOKE Step
 	INVOKE WaitStep
+	INVOKE ThreeMatchSearch
 
 	mov al, PLAYER_POS
 	cmp al, 255
@@ -1051,7 +1053,7 @@ TitleScreen PROC USES eax edx
 TitleStart:
 	; Initialize sound context
 	INVOKE PlaySound, OFFSET BGMContext, NULL, SND_ALIAS + SND_APPLICATION
-	INVOKE PlaySound, OFFSET MUSIC_TITLE, NULL, SND_FILENAME + SND_LOOP
+	INVOKE PlaySound, OFFSET MUSIC_TITLE, NULL, SND_FILENAME + SND_LOOP + SND_NOSTOP
 
 	INVOKE Str_copy,
 		offset BF_DEFAULT_FRAMED,
