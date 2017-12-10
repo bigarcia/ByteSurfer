@@ -1,6 +1,6 @@
 import random
 
-dif = 'normal'
+dif = 'hard'
 f = open('../level_'+dif+'.txt', 'rb')
 content = f.read()
 f.close()
@@ -43,11 +43,14 @@ for c in content:
 				out = '    BYTE '
 		else:
 			lucky = random.randint(0, 2)
-			lanes =  [ random.randint(0, 10),
-				random.randint(0, 10),
-				random.randint(0, 10)
-			]
+			second = random.randint(0, 1)
+			if(lucky == 0):
+				second += 1
+			elif(lucky == 1 and second == 1):
+				second += 1
+			lanes = ["", "", ""]
 			lanes[lucky] = random.randint(0, 5)
+			lanes[second] = random.randint(0, 10) 
 
 			for l_i in range(0, len(lanes)):
 				b = colorFromDec(lanes[l_i])
