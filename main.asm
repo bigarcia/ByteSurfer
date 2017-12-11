@@ -289,7 +289,7 @@ GrabFromQueue:
 	jl ThirdLaneBrick
 
 StartRepetition:
-	sub al, (Q_REPEAT_X-1)
+	sub al, Q_REPEAT_X ; IN THEORY IT WOULD BE (Q_REPEAT_X-1), BUT LET'S REMOVE THIS ONE
 	mov MAIN_Q_REPEAT_COUNTER, al
 	ret
 
