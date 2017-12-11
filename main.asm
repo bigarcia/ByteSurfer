@@ -106,6 +106,7 @@ MUSIC_TITLE BYTE "menu.wav", 0
 MUSIC_EASY BYTE "easy.wav", 0
 MUSIC_NORMAL BYTE "normal.wav", 0
 MUSIC_HARD BYTE "hard.wav", 0
+MUSIC_MEDAL BYTE "medal.wav", 0
 
 ; METAS
 META_EASY \
@@ -660,6 +661,7 @@ RewardSilver:
 		
 RewardFinish:
 	call Clrscr
+    INVOKE PlaySound, OFFSET MUSIC_MEDAL, NULL, SND_FILENAME + SND_LOOP + SND_NOSTOP
 	mov edx, offset VSYNC
 	call WriteString
 
