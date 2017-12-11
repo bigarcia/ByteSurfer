@@ -1,10 +1,11 @@
 INCLUDE ..\Irvine32.inc
 INCLUDELIB Winmm.lib
 
-PlaySound PROTO,
+PlaySoundA PROTO,
     pszSound:PTR BYTE, 
     hmod:DWORD, 
     fdwSound:DWORD
+PlaySound equ PlaySoundA
 
 .data
 
@@ -34,6 +35,7 @@ LEN_I_BRICKS = 7 ; BRICKS PER INVENTORY
 LEN_L_BRICKS = 29 ; BRICKS PER LANE
 MAIN_TIME_STEP = 1000/25; OUR DELAY TIME BETWEEN STEPS (miliseconds)
 BLOCKED_STEPS = 10000/MAIN_TIME_STEP ; STEPS THE PLAYER WILL BE BLOCKED WHEN OVERFLOWED
+MAIN_MATCH_WAIT = 30 ; TIME BTW VALIDATING MATCHES
 
 ; Enum: QueueElem
 Q_BRICK = 0 ; LANE * Brick
@@ -990,7 +992,7 @@ StepMoveLeftLoop :
 	loop StepMoveLeftLoop
 	INVOKE PopStep, LEN_L_BRICKS - 1
 
-	cmp PLAYER_MATCH_WAIT, 50
+	cmp PLAYER_MATCH_WAIT, MAIN_MATCH_WAIT
 	jl SkipMatch
 	mov PLAYER_MATCH_WAIT, 0
 	INVOKE ThreeMatchSearch
@@ -1185,22 +1187,22 @@ HaveBrick:
 
 CaptureLevelFinish:	 
 	call ReadChar
-		ret
-		CaptureLevel ENDP
+	ret
+CaptureLevel ENDP
 
-		main PROC
-		; Starts frame - sync timer
-		call GetMseconds
-		mov LAST_STEP, eax
-		add eax, 1000
-		mov DEBUG_NEXTSEC, eax
+main PROC
+	; Starts frame - sync timer
+	call GetMseconds
+	mov LAST_STEP, eax
+	add eax, 1000
+	mov DEBUG_NEXTSEC, eax
 
-		; Get rid of CURSOR
-		INVOKE HideCursor
+	; Get rid of CURSOR
+	INVOKE HideCursor
 
-		; First screen
-		INVOKE TitleScreen
-		; INVOKE Game, offset LEVEL_EASY, offset META_EASY, offset MUSIC_EASY
+	; First screen
+	INVOKE TitleScreen
+	; INVOKE Game, offset LEVEL_EASY, offset META_EASY, offset MUSIC_EASY
 	
 	; Bye
 	exit
