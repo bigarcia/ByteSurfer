@@ -124,9 +124,9 @@ META_HARD \
 	BYTE "Joan Jett & The Blackhearts", 0
 	BYTE "1981", 0
 
-PTS_TOTAL_EASY = 7000
-PTS_TOTAL_NORMAL = 8000
-PTS_TOTAL_HARD = 15000
+PTS_TOTAL_EASY = 25000
+PTS_TOTAL_NORMAL = 50000
+PTS_TOTAL_HARD = 150000
 
 ; TEXTS
 INCLUDE texts.asm
@@ -1057,7 +1057,7 @@ GameMainLoop:
 	INVOKE GameDrawPlayer
 	INVOKE GameDrawLanes
 	INVOKE GameDrawPoints
-	INVOKE GameDrawDebug
+	; INVOKE GameDrawDebug
 	
 	call ReadKey
 	cmp dx, VK_DOWN
